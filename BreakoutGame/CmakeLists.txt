@@ -1,0 +1,4 @@
+# create the project 
+add_executable(BreakoutGame
+	${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+)
