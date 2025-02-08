@@ -1,4 +1,29 @@
-# create the project 
-add_executable(BreakoutGame
-	${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+# create the game files
+add_executable(${BREAKOUT_GAME_TARGET_NAME}
+	${CMAKE_CURRENT_SOURCE_DIR}/include/GameFramework/GameApplication.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/GameFramework/GameApplication.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/include/actors/Block_Base.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/actors/Block_Base.cpp
+
 )
+
+# path so that the every .cpp does not have to add "include" to the #include "etc/example"
+target_include_directories(${BREAKOUT_GAME_TARGET_NAME} PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+# engine library link
+target_link_libraries(${BREAKOUT_GAME_TARGET_NAME} PUBLIC ${EARLY_BIRD_ENGINE_TARGET_NAME} )
+
+
+function(CopyLibDirToTarget LIB_NAME TARGET_NAME)
+add_custom_command(TARGET ${TARGET_NAME}
+	POST_BUILD
+	COMMAND
+	${CMAKE_COMMAND} -E copy_directory
+	$<TARGET_FILE_DIR:${LIB_NAME}>
+	$<TARGET_FILE_DIR:${TARGET_NAME}>
+)
+endfunction()
+CopyLibDirToTarget(${EARLY_BIRD_ENGINE_TARGET_NAME} ${BREAKOUT_GAME_TARGET_NAME})

@@ -1,1 +1,47 @@
-engine
+# create the engine library files
+add_library(${EARLY_BIRD_ENGINE_TARGET_NAME} STATIC
+	${CMAKE_CURRENT_SOURCE_DIR}/include/framework/Actor.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/Actor.cpp
+	
+	${CMAKE_CURRENT_SOURCE_DIR}/include/framework/Application.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/Application.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/include/framework/EntryPoint.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/EntryPoint.cpp
+	
+	${CMAKE_CURRENT_SOURCE_DIR}/include/framework/Object.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/Object.cpp
+	
+	${CMAKE_CURRENT_SOURCE_DIR}/include/framework/PhysicsSystem.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/PhysicsSystem.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/include/framework/World.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/World.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/include/utilities/Core.h
+)
+
+# path so that the every .cpp does not have to add "include" to the #include "etc/example"
+target_include_directories(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+# libs linked to engine only
+target_link_libraries(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC sfml-graphics)
+target_link_libraries(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC sfml-window)
+target_link_libraries(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC sfml-system)
+target_link_libraries(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC sfml-audio)
+
+function(CopyLibToTarget LIB_NAME TARGET_NAME)
+add_custom_command(TARGET ${TARGET_NAME}
+	POST_BUILD
+	COMMAND
+	${CMAKE_COMMAND} -E copy_if_different
+	$<TARGET_FILE:${LIB_NAME}>
+	$<TARGET_FILE_DIR:${TARGET_NAME}>
+)
+endfunction()
+CopyLibToTarget(sfml-graphics ${EARLY_BIRD_ENGINE_TARGET_NAME})
+CopyLibToTarget(sfml-window ${EARLY_BIRD_ENGINE_TARGET_NAME})
+CopyLibToTarget(sfml-system ${EARLY_BIRD_ENGINE_TARGET_NAME})
+CopyLibToTarget(sfml-audio ${EARLY_BIRD_ENGINE_TARGET_NAME})
