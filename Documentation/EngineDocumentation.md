@@ -91,8 +91,56 @@ Defines utility types and macros.
 ---
 
 ### 6. **World.h**
-#### **Purpose**:
-Currently a placeholder header file for world-related functionality.
+
+#### Purpose:
+The World class serves as a foundational environment manager for game worlds/levels. 
+It manages the game's actor lifecycle, updates, rendering, and serves as the intermediary between the game application and individual actors.
+
+#### Key Components:
+
+- **Inheritance & Relationships**:
+ - Inherits from `Object` for smart pointer management
+ - Owned by `Application`
+ - Owns and manages collection of `Actor` instances
+
+- **Initialization & Core Loop**:
+ - `World(Application* owningApp);`  
+   Constructor that establishes ownership relationship with Application.
+ - `void BeginPlayInternal();`  
+   Internal initialization trigger called once by Application's LoadWorld.
+ - `void TickInternal(float deltaTime);`  
+   Main update loop handling actor updates and pending actor initialization.
+ - `void Render(sf::RenderWindow& window);`  
+   Renders all active actors to the provided window.
+ - `void CleanCycle();`  
+   Safe removal of destroyed actors using iterator-safe pattern.
+
+- **Actor Management**:
+ - `template<typename ActorType, typename... Args>`  
+   `weak_ptr<ActorType> SpawnActor(Args... args);`  
+   Template function for creating new actors with variable constructor arguments.
+   Returns weak_ptr to avoid circular references.
+
+- **Private Members & Virtual Functions**:
+ - `Application* _owningApplication`  
+   Non-owning pointer to parent application for window access.
+ - `bool _hasBeganPlay`  
+   Flag ensuring BeginPlay only occurs once.
+ - `List<shared_ptr<Actor>> _actors`  
+   Collection of active actors in the world.
+ - `List<shared_ptr<Actor>> _pendingActors`  
+   Staging area for newly created actors awaiting initialization.
+ - `virtual void BeginPlay();`  
+   Override point for world-specific initialization.
+ - `virtual void Tick(float deltaTime);`  
+   Override point for world-specific updates.
+
+#### Actor Lifecycle Management:
+1. **Creation**: Actors spawned via SpawnActor enter _pendingActors
+2. **Initialization**: Next tick moves them to _actors and calls BeginPlayInternal
+3. **Updates**: Active actors receive TickInternal calls each frame
+4. **Destruction**: CleanCycle removes actors marked for destruction
+5. **Cleanup**: World destructor handles final cleanup of all actors
 
 ---
 

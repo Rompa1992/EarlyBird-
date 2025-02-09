@@ -11,8 +11,8 @@ namespace eb
 	public:
 		Application(unsigned int windowWidth, unsigned int windowHeight, const std::string& windowTitle,  sf::Uint32 windowStyle);
 
-		void RunMainLoop();
-		weak_ptr<World> LoadWorld();																										// Called by the game application 
+		void RunMainLoop();																													// Called in EntryPoint.cpp
+		weak_ptr<World> LoadWorld();																										// Called by the game application "weak_ptr<LevelOne> newWorld = LoadWorld<LevelOne>();"
 
 		sf::Vector2u GetWindowSize() const;
 
@@ -26,9 +26,12 @@ namespace eb
 		void RenderInternal();
 
 		virtual void Tick(float deltaTime);
-		virtual void Render();
+		virtual void Render();																												// Called Through RenderInternal(); ^ RunMainLoop();
 
 		shared_ptr<World> _currentWorld;
+
+		sf::Clock _cleanCycleClock;
+		float _cleanCycleInterval;
 		
 		sf::RenderWindow _renderWindow;
 		sf::Clock _tickClock;

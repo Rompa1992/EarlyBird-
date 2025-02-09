@@ -6,6 +6,8 @@
 
 namespace eb
 {
+	// public:
+	// =======
 	World::World( Application* owningApplication )
 		: _owningApplication{ owningApplication },
 		_hasBeganPlay{ false },
@@ -14,6 +16,7 @@ namespace eb
 	{
 	}
 
+	// void
 	void World::BeginPlayInternal()
 	{
 		if (!_hasBeganPlay)
@@ -50,20 +53,34 @@ namespace eb
 			actor->Render(window);
 	}
 
+	/*	
+	  * Safely removes actors marked for destruction from the world.
+	  * Uses iterator-safe removal pattern to avoid invalidation issues.
+	  *
+	  * Iterator Process:
+	  * 1. begin() starts at first actor
+	  * 2. If actor should be destroyed:
+	  *    - erase() removes it and returns iterator to next actor
+	  * 3. If actor stays:
+	  *    - manually increment iterator to next actor
+	  * 4. Continues until reaching end()
+	  *
+	  * Note: Don't increment after erase() as it already returns
+	  * iterator to next element
+	*/
 	void World::CleanCycle()
 	{
-		/*
-		 * TODO: understand this and comment it  
-		*/
-		for (auto iter = _actors.begin(); iter != _actors.end();)																// CodeExplanations->World.cpp: 'TickInternal()'
+
+		for (auto iter = _actors.begin(); iter != _actors.end();)																
 		{
-			//if (iter->get()->IsPendingDestroy())
-			//	iter = _actors.erase(iter);
-			//else
-				//++iter;
+			if (iter->get()->IsPendingDestroy())
+				iter = _actors.erase(iter);																						// erase() returns valid iterator to next element
+			else
+				++iter;
 		}
 	}
 
+	// getters
 	sf::Vector2u World::GetWindowSize() const
 	{
 		return _owningApplication->GetWindowSize();
@@ -71,7 +88,7 @@ namespace eb
 
 	World::~World()
 	{
-
+		// Nothing to implement.
 	}
 
 	// private:
@@ -83,6 +100,6 @@ namespace eb
 
 	void World::Tick(float deltaTime)
 	{
-
+		// Nothing to implement.
 	}
 }

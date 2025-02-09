@@ -11,7 +11,9 @@ namespace eb
 		: _renderWindow{ sf::VideoMode(windowWidth, windowHeight), windowTitle, windowStyle },
 		_currentWorld{ nullptr },
 		_tickClock{},
-		_targetFrameRate{ 60.f }
+		_targetFrameRate{ 60.f },
+		_cleanCycleClock{},
+		_cleanCycleInterval{ 2.f }
 	{
 	}
 
@@ -82,6 +84,19 @@ namespace eb
 
 		if (_currentWorld)
 			_currentWorld->TickInternal(deltaTime);
+
+		// TODO: TimerManager::Get().UpdateTimer(deltaTime);
+		// TODO: PhysicsSystem::Get().Step(deltaTime); 
+
+		// Clean Cycle
+		if (_cleanCycleClock.getElapsedTime().asSeconds() >= _cleanCycleInterval)
+		{
+			_cleanCycleClock.restart();
+			// TODO: AssetManager::Get().CleanCycle();
+
+			if (_currentWorld)
+				_currentWorld->CleanCycle();
+		}
 	}
 
 	void Application::RenderInternal()
@@ -100,6 +115,7 @@ namespace eb
 
 	void Application::Render()
 	{
-		
+		if (_currentWorld)
+			_currentWorld->Render(_renderWindow);
 	}
 }

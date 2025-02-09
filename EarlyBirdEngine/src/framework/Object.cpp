@@ -11,6 +11,7 @@ namespace eb
 
 	void Object::Destroy()
 	{
+		// TODO: Broadcast destroy.
 		_isPendingDestroy = true;
 	}
 

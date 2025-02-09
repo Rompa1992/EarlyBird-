@@ -31,8 +31,8 @@ namespace eb
 
 		void BeginPlayInternal();																				// Called from Application template LoadWorld();
 		void TickInternal(float deltaTime);																		// Called from Application TickInternal();
-		void Render(sf::RenderWindow& window);
-		void CleanCycle();
+		void Render(sf::RenderWindow& window);																	// Called from Application Render();
+		void CleanCycle();																						// Called from Application TickInternal();
 
 		sf::Vector2u GetWindowSize() const;
 

@@ -14,22 +14,40 @@ namespace eb
 	public:
 		Actor(World* owningWorld);
 
-		void BeginPlayInternal();
-		void TickInternal(float deltaTime);
-		void Render(sf::RenderWindow& window);
+		void BeginPlayInternal();																												// Called From World::TickInternal();
+		void TickInternal(float deltaTime);																										// Called From World::TickInternal();
+		void Render(sf::RenderWindow& window);																									// Called From World::Render();
 		void AddActorLocationOffset(const sf::Vector2f& offsetAmount);
 
 		virtual void Destroy() override;
 
-		virtual void OnBeginPlay();
-		virtual void Tick();
+		virtual void BeginPlay();
+		virtual void Tick(float deltaTime);
 		virtual void OnActorBeginOverlap(Actor* hitActor);
 		virtual void OnActorEndOverlap(Actor* hitActor);
+
+		void SetActorLocation(const sf::Vector2f& newLocation);
+
+		sf::FloatRect GetActorGlobalBounds() const;
+		const World* GetWorld() const { return _owningWorld; }
+		World* GetWorld() { return _owningWorld; }
+
+		sf::Vector2f GetActorLocation() const;
+
+		virtual ~Actor();
 
 		// From here take some quick notes of the lightYears code, write down what is needed for this game and make it without reference. 
 
 	private:
+		void InitPhysics();
+		void UnInitPhysics();
+		void UpddatePhysicsTransform();
 
+		World* _owningWorld;
+		bool _hasBeganPlay;
+
+		//b2Body* _physicsBody;
+		bool _isPhysicsEnabled;
 
 	};
 
