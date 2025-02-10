@@ -2,21 +2,25 @@
 
 ## Index
 
-1.Application.h
-2.Application.cpp
-3.EntryPoint.h
-4.EntryPoint.cpp
-5.Core.h
-6.World.h
-7.GameApplication.h
-8.GameApplication.cpp
-9.Object.h
+### Engine Files
+1.1.Application.h
+1.2.Application.cpp
+1.3.EntryPoint.h
+1.4.EntryPoint.cpp
+1.5.Core.h
+1.6.World.h
+1.7.GameApplication.h
+1.8.GameApplication.cpp
+1.9.Object.h
+
+### Processes
+2.1.Calling An Actor 
 
 ---
 
-## File Structure
+# Engine Files
 
-### 1. **Application.h**
+### 1.1. **Application.h**
 #### **Purpose**:
 Defines the `Application` class, which manages the main game loop and rendering.
 
@@ -35,7 +39,7 @@ Defines the `Application` class, which manages the main game loop and rendering.
 
 ---
 
-### 2. **Application.cpp**
+### 1.2. **Application.cpp**
 #### **Purpose**:
 Implements the `Application` class, handling the main loop and rendering logic.
 
@@ -51,7 +55,7 @@ Implements the `Application` class, handling the main loop and rendering logic.
 
 ---
 
-### 3. **EntryPoint.h**
+### 1.3. **EntryPoint.h**
 #### **Purpose**:
 Declares an external function to retrieve the `Application` instance.
 
@@ -60,7 +64,7 @@ Declares an external function to retrieve the `Application` instance.
 
 ---
 
-### 4. **EntryPoint.cpp**
+### 1.4. **EntryPoint.cpp**
 #### **Purpose**:
 Defines the main entry point of the application.
 
@@ -71,7 +75,7 @@ Defines the main entry point of the application.
 
 ---
 
-### 5. **Core.h**
+### 1.5. **Core.h**
 #### **Purpose**:
 Defines utility types and macros.
 
@@ -90,7 +94,7 @@ Defines utility types and macros.
 
 ---
 
-### 6. **World.h**
+### 1.6. **World.h**
 
 #### Purpose:
 The World class serves as a foundational environment manager for game worlds/levels. 
@@ -144,7 +148,7 @@ It manages the game's actor lifecycle, updates, rendering, and serves as the int
 
 ---
 
-### 7. **GameApplication.h**
+### 1.7. **GameApplication.h**
 #### **Purpose**:
 Defines `GameApplication`, which inherits from `Application`.
 
@@ -154,7 +158,7 @@ Defines `GameApplication`, which inherits from `Application`.
 
 ---
 
-### 8. **GameApplication.cpp**
+### 1.8. **GameApplication.cpp**
 #### **Purpose**:
 Implements `GameApplication` and provides an instance of it.
 
@@ -167,7 +171,7 @@ Implements `GameApplication` and provides an instance of it.
 
 ---
 
-### 9. **Object.h**
+### 1.9. **Object.h**
 #### **Purpose**:
 Defines the `Object` class, a base class for safe object management using smart pointers. It leverages `std::enable_shared_from_this` to allow an object to generate weak references to itself, ensuring proper memory management and avoiding cyclic dependencies.
 
@@ -208,3 +212,238 @@ To integrate the `Object` class documentation into the existing engine project d
 - Documented the class purpose, detailing its role in safe smart pointer management using `std::enable_shared_from_this`.
 - Listed key components including inheritance, constructors/destructor, public methods, and private members.
 - Ensured the documentation style matches that of the provided examples, focusing solely on the `Object` class.
+
+---
+---
+
+# Processes
+
+## 2.1.Calling An Actor 
+
+### Actor Creation  
+
+Actors are created using the `SpawnActor` template function from **World.h** When an actor is spawned, it is added to the `_pendingActors` list, which holds actors that are not yet fully initialized.  
+
+```cpp
+template<typename ActorType, typename... Args>
+weak_ptr<ActorType> SpawnActor(Args... args)
+{
+    shared_ptr<ActorType> spawningActor{ new ActorType(this, args...) };
+    _pendingActors.push_back(spawningActor);
+    return spawningActor;
+}
+```  
+
+**Key Points**  
+- The `SpawnActor` function constructs the actor using the provided arguments.  
+- The `this` pointer (the `World` instance) is passed to the actor's constructor, ensuring the actor knows which world it belongs to.  
+- The actor is added to `_pendingActors` for later initialization.  
+
+---  
+
+### Actor Initialization  
+
+On the next game tick, actors in `_pendingActors` are moved to `_actors` and initialized.  
+
+#### Process  
+1. The `World` iterates through `_pendingActors`.  
+2. Each actor is moved to `_actors`.  
+3. The `BeginPlayInternal` function is called, which in turn calls the actor's `BeginPlay` method.  
+
+```cpp
+void World::Tick(float deltaTime)
+{
+    // Move pending actors to active actors
+    for (auto& actor : _pendingActors)
+    {
+        _actors.push_back(actor);
+        actor->BeginPlayInternal();
+    }
+    _pendingActors.clear();
+
+    // Update active actors
+    for (auto& actor : _actors)
+    {
+        actor->TickInternal(deltaTime);
+    }
+}
+```  
+
+**Key Points**  
+- `BeginPlayInternal` is a wrapper that calls the actor's `BeginPlay` method.  
+- This is where world-specific initialization logic for the actor is executed.  
+
+---  
+
+### Actor Updates  
+
+Active actors receive updates every frame via the `Tick` method.  
+
+#### Process  
+1. The `World` calls `TickInternal` on each actor in `_actors`.  
+2. `TickInternal` calls the actor's `Tick` method, passing the `deltaTime` (time since the last frame).  
+
+```cpp
+void Actor::TickInternal(float deltaTime)
+{
+    if (!_isPendingDestroy)
+    {
+        Tick(deltaTime);
+    }
+}
+```  
+
+**Key Points**  
+- The `Tick` method is where per-frame updates (e.g., movement, physics, etc.) are handled.  
+- Actors marked for destruction (`_isPendingDestroy`) are skipped.  
+
+---  
+
+### Actor Destruction  
+
+Actors marked for destruction are cleaned up during the `CleanCycle`.  
+
+#### Process  
+1. Actors set their `_isPendingDestroy` flag to `true` when they are no longer needed.  
+2. During the `CleanCycle`, the `World` iterates through `_actors` and removes any actors with `_isPendingDestroy` set to `true`.  
+
+```cpp
+void World::CleanCycle()
+{
+    _actors.erase(std::remove_if(_actors.begin(), _actors.end(),
+        [](const shared_ptr<Actor>& actor) {
+            return actor->IsPendingDestroy();
+        }), _actors.end());
+}
+```  
+
+**Key Points**  
+- Actors are responsible for marking themselves for destruction (e.g., via `Destroy`).  
+- The `World` handles the actual removal of destroyed actors.  
+
+---  
+
+### World Cleanup  
+
+When the `World` is destroyed, all remaining actors are cleaned up.  
+
+#### Process  
+1. The `World` destructor iterates through `_actors` and ensures all actors are properly destroyed.  
+2. Any remaining resources are released.  
+
+```cpp
+World::~World()
+{
+    for (auto& actor : _actors)
+    {
+        actor->Destroy();
+    }
+    _actors.clear();
+}
+```  
+
+**Key Points**  
+- This ensures no memory leaks occur when the `World` is destroyed.  
+
+---
+
+## Key Methods in Actor Lifecycle  
+
+### `virtual void BeginPlay();`  
+
+**Purpose**: Override point for world-specific initialization.  
+**Usage**: Implement this method in derived actors to handle setup logic (e.g., spawning child actors, initializing components).  
+
+```cpp
+void Block_Base::BeginPlay()
+{
+    // Custom initialization logic
+}
+```  
+
+---  
+
+### `virtual void Tick(float deltaTime);`  
+
+**Purpose**: Override point for world-specific updates.  
+**Usage**: Implement this method in derived actors to handle per-frame updates (e.g., movement, input handling).  
+
+```cpp
+void Block_Base::Tick(float deltaTime)
+{
+    // Custom update logic
+}
+```  
+
+---
+
+## Example: Spawning and Using an Actor  
+
+### Spawning an Actor  
+
+In your `LevelOne` class, you can spawn an actor like this:  
+
+```cpp
+LevelOne::LevelOne(Application* owningApplication)
+    : World{ owningApplication }
+{
+    _testActor = SpawnActor<Block_Base>(sf::Vector2f{ 400, 100 }, sf::Color::Red);
+    _testActor.lock()->SetActorLocation(sf::Vector2f(300.f, 500.f));
+}
+```  
+
+**Key Points**  
+- `SpawnActor` creates a `Block_Base` actor and passes the `World` (`this`) to its constructor.  
+- The actor is added to `_pendingActors` and initialized on the next tick.  
+
+---
+
+### Overriding `BeginPlay` and `Tick`  
+
+In your `Block_Base` class, you can override `BeginPlay` and `Tick` to add custom behavior:  
+
+```cpp
+void Block_Base::BeginPlay()
+{
+    // Initialization logic
+    PRINT("Block_Base BeginPlay!");
+}
+
+void Block_Base::Tick(float deltaTime)
+{
+    // Update logic
+    SetActorLocation(GetActorLocation() + sf::Vector2f(1.f, 0.f)); // Move right
+}
+```  
+
+---
+
+### Destroying an Actor  
+
+To destroy an actor, call its `Destroy` method:  
+
+```cpp
+void Block_Base::SomeFunction()
+{
+    if (ShouldDestroy())
+    {
+        Destroy(); // Mark for destruction
+    }
+}
+```  
+
+**Key Points**  
+- The actor will be removed during the next `CleanCycle`.  
+
+---
+
+## Summary of Actor Lifecycle  
+
+- **Creation**: Actors are spawned via `SpawnActor` and added to `_pendingActors`.  
+- **Initialization**: On the next tick, actors are moved to `_actors` and `BeginPlay` is called.  
+- **Updates**: Active actors receive `Tick` calls every frame.  
+- **Destruction**: Actors marked for destruction are removed during `CleanCycle`.  
+- **Cleanup**: The `World` destructor ensures all actors are properly destroyed.  
+
+---
+

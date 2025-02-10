@@ -11,10 +11,12 @@ namespace eb
 	public:
 		Application(unsigned int windowWidth, unsigned int windowHeight, const std::string& windowTitle,  sf::Uint32 windowStyle);
 
-		void RunMainLoop();																													// Called in EntryPoint.cpp
-		weak_ptr<World> LoadWorld();																										// Called by the game application "weak_ptr<LevelOne> newWorld = LoadWorld<LevelOne>();"
+		void RunMainLoop();																													// Called in EntryPoint.cpp																									// Called by the game application "weak_ptr<LevelOne> newWorld = LoadWorld<LevelOne>();"
 
 		sf::Vector2u GetWindowSize() const;
+
+		template<typename WorldType>
+		weak_ptr<WorldType> LoadWorld();
 
 	private:
 		/*
@@ -37,4 +39,21 @@ namespace eb
 		sf::Clock _tickClock;
 		float _targetFrameRate;
 	};
+
+	/*
+	 * Handles creation and initialization of a new World instance.
+	 * Returns a weak_ptr to avoid circular references while allowing world access.
+	 *
+	 * @return weak_ptr to the newly created world
+	 * @note World is heap allocated to persist beyond function scope
+	*/
+
+	template<typename WorldType>
+	weak_ptr<WorldType> Application::LoadWorld()
+	{
+		shared_ptr<WorldType> newWorld{ new WorldType{this} };																		// Create a new world instance using a shared_ptr, which ensures proper memory management.
+		_currentWorld = newWorld;																									// Update the current world with the newly loaded one.
+		_currentWorld->BeginPlayInternal();
+		return newWorld;																											// Return a weak_ptr to avoid strong ownership by the caller.
+	}
 }

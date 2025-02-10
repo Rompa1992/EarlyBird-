@@ -4,6 +4,7 @@
 #include "SFML/Graphics.hpp"
 #include "utilities/Core.h"
 
+
 class b2Body;
 
 namespace eb
@@ -12,7 +13,11 @@ namespace eb
 	class Actor : public Object
 	{
 	public:
-		Actor(World* owningWorld);
+		// Rectangle
+		Actor(World* owningWorld, sf::Vector2f rectSize = {50.f, 50.f}, sf::Color color = {sf::Color::Cyan});
+
+		// Circle
+		Actor(World* owningWorld, float radiusSize = 50.f, sf::Color color = { sf::Color::Cyan });
 
 		void BeginPlayInternal();																												// Called From World::TickInternal();
 		void TickInternal(float deltaTime);																										// Called From World::TickInternal();
@@ -29,6 +34,8 @@ namespace eb
 		void SetActorLocation(const sf::Vector2f& newLocation);
 
 		sf::FloatRect GetActorGlobalBounds() const;
+		sf::Vector2u GetWindowSize() const;
+
 		const World* GetWorld() const { return _owningWorld; }
 		World* GetWorld() { return _owningWorld; }
 
@@ -43,6 +50,8 @@ namespace eb
 		void UnInitPhysics();
 		void UpddatePhysicsTransform();
 
+		shared_ptr<sf::Shape> _baseShapeActor;
+
 		World* _owningWorld;
 		bool _hasBeganPlay;
 
@@ -50,5 +59,4 @@ namespace eb
 		bool _isPhysicsEnabled;
 
 	};
-
 }

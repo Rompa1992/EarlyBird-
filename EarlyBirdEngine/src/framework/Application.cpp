@@ -51,23 +51,7 @@ namespace eb
 			}
 		}
 	}
-
-
-	/*
-	 * Handles creation and initialization of a new World instance.
-	 * Returns a weak_ptr to avoid circular references while allowing world access.
-	 *
-	 * @return weak_ptr to the newly created world
-	 * @note World is heap allocated to persist beyond function scope
-	*/
-	weak_ptr<World> Application::LoadWorld()
-	{
-		shared_ptr<World> newWorld{ new World{this} };																		// Create a new world instance using a shared_ptr, which ensures proper memory management.
-		_currentWorld = newWorld;																							// Update the current world with the newly loaded one.
-		_currentWorld->BeginPlayInternal();
-		return newWorld;
-	}
-
+	
 	// getters
 	sf::Vector2u Application::GetWindowSize() const
 	{

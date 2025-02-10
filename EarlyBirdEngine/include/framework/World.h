@@ -42,7 +42,7 @@ namespace eb
 		 * The new actor is added to the pending actors list for further processing.
 		 */
 		template<typename ActorType, typename... Args>
-		weak_ptr<ActorType> SpawnActor(Args... args);
+		weak_ptr<ActorType> SpawnActor(Args... args);															// Called within Game Levels
 
 		~World();
 
@@ -63,11 +63,10 @@ namespace eb
 	};
 
 	template<typename ActorType, typename... Args>
-	weak_ptr<ActorType> SpawnActor(Args... args)
+	weak_ptr<ActorType> World::SpawnActor(Args... args)
 	{
 		shared_ptr<ActorType> spawningActor{ new ActorType(this, args...) };
 		_pendingActors.push_back(spawningActor);
 		return spawningActor;
 	}
-
 }

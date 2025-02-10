@@ -6,6 +6,9 @@ add_library(${EARLY_BIRD_ENGINE_TARGET_NAME} STATIC
 	${CMAKE_CURRENT_SOURCE_DIR}/include/framework/Application.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/Application.cpp
 
+	${CMAKE_CURRENT_SOURCE_DIR}/include/framework/AssetManager.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/AssetManager.cpp
+
 	${CMAKE_CURRENT_SOURCE_DIR}/include/framework/EntryPoint.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/EntryPoint.cpp
 	
@@ -19,6 +22,9 @@ add_library(${EARLY_BIRD_ENGINE_TARGET_NAME} STATIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src/framework/World.cpp
 
 	${CMAKE_CURRENT_SOURCE_DIR}/include/utilities/Core.h
+
+	${CMAKE_CURRENT_SOURCE_DIR}/include/utilities/Math.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/utilities/Math.cpp
 )
 
 # path so that the every .cpp does not have to add "include" to the #include "etc/example"
@@ -26,11 +32,38 @@ target_include_directories(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+# include API 
+include(FetchContent)
+set(SFML_LIB_NAME SFML)
+
+FetchContent_Declare(
+	${SFML_LIB_NAME}
+	GIT_REPOSITORY https://github.com/SFML/SFML
+	GIT_TAG 2.5.1
+	GIT_SHALLOW FALSE
+)
+
+FetchContent_MakeAvailable(${SFML_LIB_NAME})
+
 # libs linked to engine only
 target_link_libraries(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC sfml-graphics)
 target_link_libraries(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC sfml-window)
 target_link_libraries(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC sfml-system)
 target_link_libraries(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC sfml-audio)
+
+
+# Physics lib
+set(BOX2D_LIB_NAME Box2D)
+
+FetchContent_Declare(
+	${BOX2D_LIB_NAME}
+	GIT_REPOSITORY https://github.com/erincatto/box2d
+	GIT_TAG v2.4.1
+	GIT_SHALLOW FALSE
+)
+
+FetchContent_MakeAvailable(${BOX2D_LIB_NAME})
+target_link_libraries(${EARLY_BIRD_ENGINE_TARGET_NAME} PUBLIC box2d)
 
 function(CopyLibToTarget LIB_NAME TARGET_NAME)
 add_custom_command(TARGET ${TARGET_NAME}
@@ -45,3 +78,5 @@ CopyLibToTarget(sfml-graphics ${EARLY_BIRD_ENGINE_TARGET_NAME})
 CopyLibToTarget(sfml-window ${EARLY_BIRD_ENGINE_TARGET_NAME})
 CopyLibToTarget(sfml-system ${EARLY_BIRD_ENGINE_TARGET_NAME})
 CopyLibToTarget(sfml-audio ${EARLY_BIRD_ENGINE_TARGET_NAME})
+
+CopyLibToTarget(box2d ${EARLY_BIRD_ENGINE_TARGET_NAME})

@@ -3,8 +3,23 @@ add_executable(${BREAKOUT_GAME_TARGET_NAME}
 	${CMAKE_CURRENT_SOURCE_DIR}/include/GameFramework/GameApplication.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/GameFramework/GameApplication.cpp
 
+	${CMAKE_CURRENT_SOURCE_DIR}/include/actors/Ball_Base.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/actors/Ball_Base.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/include/actors/Ball_Regular.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/actors/Ball_Regular.cpp
+
 	${CMAKE_CURRENT_SOURCE_DIR}/include/actors/Block_Base.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/actors/Block_Base.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/include/actors/Block_Regular.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/actors/Block_Regular.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/include/actors/Player.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/actors/Player.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/include/levels/LevelOne.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/levels/LevelOne.cpp
 
 )
 
