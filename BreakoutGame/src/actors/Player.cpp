@@ -26,6 +26,8 @@ namespace bo
 	void Player::BeginPlay()
 	{
 		Block_Base::BeginPlay();
+
+		//@Note: SetEnablePhysics(true); called from actor BeginPlay();
 	}
 
 	// private:
@@ -49,7 +51,7 @@ namespace bo
 			_moveInput = 0.f;
 
 		// right side 
-		if (playerLocationX > GetWindowSize().x && _moveInput == 1)
+		if (playerLocationX > (float)GetWindowSize().x - GetActorGlobalRectBounds().width && _moveInput == 1)
 			_moveInput = 0.f;
 	}
 

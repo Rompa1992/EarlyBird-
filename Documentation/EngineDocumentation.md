@@ -12,6 +12,7 @@
 1.7.GameApplication.h
 1.8.GameApplication.cpp
 1.9.Object.h
+1.10 Core.h
 
 ### Processes
 2.1.Calling An Actor 
@@ -212,6 +213,114 @@ To integrate the `Object` class documentation into the existing engine project d
 - Documented the class purpose, detailing its role in safe smart pointer management using `std::enable_shared_from_this`.
 - Listed key components including inheritance, constructors/destructor, public methods, and private members.
 - Ensured the documentation style matches that of the provided examples, focusing solely on the `Object` class.
+
+---
+---
+
+## Core.h
+
+### Smart Pointers
+
+#### `unique_ptr<T>`
+- **Purpose**: Manages exclusive ownership of a dynamically allocated object.
+- **Use Case**: When only one owner should manage the lifetime of the object.
+- **Example**:
+  ```cpp
+  eb::unique_ptr<int> ptr = std::make_unique<int>(42);
+  PRINT("Value: %d", *ptr); // Output: Value: 42
+  ```
+- **Inner Workings**: Automatically deletes the object when the `unique_ptr` goes out of scope. Cannot be copied, but can be moved.
+
+#### `shared_ptr<T>`
+- **Purpose**: Manages shared ownership of a dynamically allocated object.
+- **Use Case**: When multiple parts of the code need to share ownership of the same object.
+- **Example**:
+  ```cpp
+  eb::shared_ptr<int> ptr1 = std::make_shared<int>(42);
+  eb::shared_ptr<int> ptr2 = ptr1; // Both ptr1 and ptr2 share ownership
+  PRINT("Value: %d", *ptr2); // Output: Value: 42
+  ```
+- **Inner Workings**: Uses reference counting to track the number of owners. Deletes the object when the last `shared_ptr` goes out of scope.
+
+#### `weak_ptr<T>`
+- **Purpose**: Provides a non-owning reference to an object managed by `shared_ptr`.
+- **Use Case**: When you need to observe an object without affecting its lifetime.
+- **Example**:
+  ```cpp
+  eb::shared_ptr<int> shared = std::make_shared<int>(42);
+  eb::weak_ptr<int> weak = shared;
+  if (auto locked = weak.lock()) {
+      PRINT("Value: %d", *locked); // Output: Value: 42
+  }
+  ```
+- **Inner Workings**: Does not increment the reference count. Must be converted to `shared_ptr` to access the object.
+
+---
+
+### Containers
+
+#### `List<T>`
+- **Purpose**: A dynamic array that stores elements in a contiguous block of memory.
+- **Use Case**: When you need a resizable array with fast random access.
+- **Example**:
+  ```cpp
+  eb::List<int> numbers = {1, 2, 3};
+  numbers.push_back(4);
+  PRINT("Size: %zu", numbers.size()); // Output: Size: 4
+  ```
+- **Inner Workings**: Uses a dynamically allocated array that grows as needed. Provides O(1) access by index.
+
+#### `Map<keyType, valueType, predicate>`
+- **Purpose**: An associative container that stores key-value pairs in sorted order.
+- **Use Case**: When you need to store and retrieve values by a unique key, with keys sorted.
+- **Example**:
+  ```cpp
+  eb::Map<std::string, int> ages = {{"Alice", 30}, {"Bob", 25}};
+  ages["Charlie"] = 28;
+  PRINT("Bob's age: %d", ages["Bob"]); // Output: Bob's age: 25
+  ```
+- **Inner Workings**: Implemented as a balanced binary search tree (usually a Red-Black Tree). Provides O(log n) operations.
+
+#### `Set<T>`
+- **Purpose**: An unordered collection of unique elements.
+- **Use Case**: When you need to store unique elements without caring about their order.
+- **Example**:
+  ```cpp
+  eb::Set<int> numbers = {1, 2, 3};
+  numbers.insert(4);
+  PRINT("Size: %zu", numbers.size()); // Output: Size: 4
+  ```
+- **Inner Workings**: Uses a hash table for storage. Provides O(1) average-case operations.
+
+---
+
+### Console Output Macros
+
+#### `PRINT_COLOR(color, log, ...)`
+- **Purpose**: Prints a colored message to the console.
+- **Use Case**: For debugging or logging with visual distinction.
+- **Example**:
+  ```cpp
+  PRINT_COLOR(RED, "Error: Something went wrong!");
+  ```
+
+#### `PRINT(log, ...)`
+- **Purpose**: Prints a message to the console.
+- **Use Case**: For general logging or debugging.
+- **Example**:
+  ```cpp
+  PRINT("Hello, World!");
+  ```
+
+---
+
+### Summary of Use Cases
+- **`unique_ptr`**: Use for exclusive ownership.
+- **`shared_ptr`**: Use for shared ownership.
+- **`weak_ptr`**: Use for non-owning references.
+- **`List`**: Use for dynamic arrays.
+- **`Map`**: Use for sorted key-value pairs.
+- **`Set`**: Use for unordered unique elements.
 
 ---
 ---
@@ -445,5 +554,6 @@ void Block_Base::SomeFunction()
 - **Destruction**: Actors marked for destruction are removed during `CleanCycle`.  
 - **Cleanup**: The `World` destructor ensures all actors are properly destroyed.  
 
+---
 ---
 

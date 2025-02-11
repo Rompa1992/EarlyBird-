@@ -13,5 +13,12 @@ namespace bo
 		Actor::Tick(deltaTime);
 	}
 
+	void Block_Base::BeginPlay()
+	{
+		Actor::BeginPlay();
+
+		//@Note: SetEnablePhysics(true); called from actor BeginPlay();
+	}
+
 	
 }

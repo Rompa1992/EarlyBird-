@@ -1,7 +1,11 @@
 #include "framework/Actor.h"
 
-#include "utilities/Core.h"
+#include <box2d/b2_body.h>
+
+#include "framework/PhysicsSystem.h"
 #include "framework/World.h"
+#include "utilities/Core.h"
+#include "utilities/Math.h"
 
 // TODO: link physics API
 // #include <box2d/b2_body.h>
@@ -14,6 +18,7 @@ namespace eb
 		: _owningWorld{ owningWorld },
 		_baseShapeActor{ std::make_shared<sf::RectangleShape>(rectSize) },
 		_hasBeganPlay{ false },
+		_physicsBody{ nullptr },
 		_isPhysicsEnabled{ false }
 	{
 		_baseShapeActor->setFillColor(color);
@@ -23,6 +28,7 @@ namespace eb
 		: _owningWorld{ owningWorld },
 		_baseShapeActor{ std::make_shared<sf::CircleShape>(radiusSize) },
 		_hasBeganPlay{ false },
+		_physicsBody{ nullptr },
 		_isPhysicsEnabled{ false }
 	{
 		_baseShapeActor->setFillColor(color);
@@ -50,6 +56,9 @@ namespace eb
 		{
 			if (_baseShapeActor)
 				window.draw(*_baseShapeActor);
+
+			if (_debugDrawEnabled && _physicsBody) 
+				RenderDebugPhysics(window);
 		}
 	}
 
@@ -70,6 +79,7 @@ namespace eb
 	void Actor::BeginPlay()
 	{
 		PRINT("Actor has began play");
+		SetPhysicsEnabled(true);
 	}
 
 	void Actor::Tick(float deltaTime)
@@ -93,20 +103,25 @@ namespace eb
 	{
 
 		_baseShapeActor->setPosition(newLocation);
+		UpddatePhysicsTransform();
+	}
 
-		// If physics is enabled, update physics transform
+	void Actor::SetPhysicsEnabled(bool enable)
+	{
+		_isPhysicsEnabled = enable;
+
 		if (_isPhysicsEnabled)
-		{
-			UpddatePhysicsTransform();
-		}
+			InitPhysics();
+		else
+			UnInitPhysics();
 	}
 
 
 
 	// getters
-	sf::FloatRect Actor::GetActorGlobalBounds() const
+	sf::FloatRect Actor::GetActorGlobalRectBounds() const																			// Access through .width & .height for .x & .y
 	{
-		return sf::FloatRect();
+		return _baseShapeActor->getGlobalBounds();
 	}
 
 	sf::Vector2u Actor::GetWindowSize() const
@@ -119,6 +134,12 @@ namespace eb
 		return _baseShapeActor->getPosition();
 	}
 
+	float Actor::GetActorRotation() const
+	{
+		return _baseShapeActor->getRotation();
+	}
+
+
 	Actor::~Actor()
 	{
 	}
@@ -129,13 +150,52 @@ namespace eb
 	// void
 	void Actor::InitPhysics()
 	{
+		if (!_physicsBody)
+			_physicsBody = PhysicsSystem::Get().AddListener(this);
 	}
 
 	void Actor::UnInitPhysics()
 	{
+		if (_physicsBody)
+		{
+			PhysicsSystem::Get().RemoveListener(_physicsBody);
+			_physicsBody = nullptr;
+		}
 	}
 
 	void Actor::UpddatePhysicsTransform()
 	{
+		if (_physicsBody)
+		{
+			float physicsScale = PhysicsSystem::Get().GetPhysicsScale();
+			b2Vec2 pos{ GetActorLocation().x * physicsScale, GetActorLocation().y * physicsScale };
+			
+			_physicsBody->SetTransform(pos, 0.f);
+		}
+	}
+
+	void Actor::RenderDebugPhysics(sf::RenderWindow& window)
+	{
+		if (!_physicsBody)
+			return;
+
+		sf::RectangleShape debugShape;
+
+		if (auto rect = dynamic_cast<sf::RectangleShape*>(_baseShapeActor.get())) {
+			debugShape.setSize(rect->getSize());
+			debugShape.setOrigin(rect->getSize().x / 2.f, rect->getSize().y / 2.f);
+		}
+
+		float physicsScale = PhysicsSystem::Get().GetPhysicsScale();
+
+		debugShape.setPosition(
+			GetActorLocation().x * physicsScale + GetActorGlobalRectBounds().width / 2.f,
+			GetActorLocation().y * physicsScale + GetActorGlobalRectBounds().height / 2.f);
+		debugShape.setRotation(GetActorRotation());
+		debugShape.setFillColor(sf::Color::Transparent);
+		debugShape.setOutlineColor(sf::Color::Red);
+		debugShape.setOutlineThickness(1.0f);
+
+		window.draw(debugShape);
 	}
 }

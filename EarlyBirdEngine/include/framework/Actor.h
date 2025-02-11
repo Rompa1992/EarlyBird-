@@ -5,7 +5,7 @@
 #include "utilities/Core.h"
 
 
-class b2Body;
+class b2Body;																																	// outside of namespace eb::
 
 namespace eb
 {
@@ -32,31 +32,41 @@ namespace eb
 		virtual void OnActorEndOverlap(Actor* hitActor);
 
 		void SetActorLocation(const sf::Vector2f& newLocation);
+		void SetPhysicsEnabled(bool enable);
 
-		sf::FloatRect GetActorGlobalBounds() const;
+		// getters
+		sf::FloatRect GetActorGlobalRectBounds() const;
+
 		sf::Vector2u GetWindowSize() const;
 
 		const World* GetWorld() const { return _owningWorld; }
 		World* GetWorld() { return _owningWorld; }
 
 		sf::Vector2f GetActorLocation() const;
+		float GetActorRotation() const;
+		// end getters
 
 		virtual ~Actor();
 
 		// From here take some quick notes of the lightYears code, write down what is needed for this game and make it without reference. 
 
 	private:
+		// Physics
 		void InitPhysics();
 		void UnInitPhysics();
 		void UpddatePhysicsTransform();
+		void RenderDebugPhysics(sf::RenderWindow& window);
 
 		shared_ptr<sf::Shape> _baseShapeActor;
 
 		World* _owningWorld;
 		bool _hasBeganPlay;
 
-		//b2Body* _physicsBody;
+		b2Body* _physicsBody;
 		bool _isPhysicsEnabled;
+		bool _debugDrawEnabled = true;
 
 	};
 }
+
+//TODO: Document physics process & its cpp. AssetManager

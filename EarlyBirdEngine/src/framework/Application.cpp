@@ -1,5 +1,6 @@
 #include "framework/Application.h"
 
+#include "framework/PhysicsSystem.h"
 #include "framework/World.h"
 #include "utilities/Core.h"
 
@@ -70,7 +71,7 @@ namespace eb
 			_currentWorld->TickInternal(deltaTime);
 
 		// TODO: TimerManager::Get().UpdateTimer(deltaTime);
-		// TODO: PhysicsSystem::Get().Step(deltaTime); 
+		PhysicsSystem::Get().Step(deltaTime); 
 
 		// Clean Cycle
 		if (_cleanCycleClock.getElapsedTime().asSeconds() >= _cleanCycleInterval)

@@ -68,6 +68,7 @@ namespace eb
 	  * Note: Don't increment after erase() as it already returns
 	  * iterator to next element
 	*/
+
 	void World::CleanCycle()
 	{
 
