@@ -3,8 +3,7 @@
 namespace bo
 {
 	Block_Base::Block_Base(eb::World* owningWorld, sf::Vector2f rectSize, sf::Color color)
-		: Actor{ owningWorld, rectSize, color },
-		_velocity{}
+		: Actor{ owningWorld, rectSize, color }
 	{
 	}
 

@@ -78,24 +78,23 @@ namespace eb
 	// virtual void 
 	void Actor::BeginPlay()
 	{
-		PRINT("Actor has began play");
+		//PRINT("Actor has began play");
 		SetPhysicsEnabled(true);
 	}
 
 	void Actor::Tick(float deltaTime)
 	{
-		//sf::Vector2f newLocation = GetActorLocation() + sf::Vector2f(1.f, 0.f);
-		//SetActorLocation(newLocation);
+
 	}
 
 	void Actor::OnActorBeginOverlap(Actor* hitActor)
 	{
-		PRINT_COLOR(BLUE, "Actor Overlapped");
+		//PRINT_COLOR(BLUE, "Actor Overlapped");
 	}
 
 	void Actor::OnActorEndOverlap(Actor* hitActor)
 	{
-		PRINT_COLOR(YELLOW, "Actor End Overlapped");
+		//PRINT_COLOR(YELLOW, "Actor End Overlapped");
 	}
 
 	// setters
@@ -103,6 +102,12 @@ namespace eb
 	{
 
 		_baseShapeActor->setPosition(newLocation);
+		UpddatePhysicsTransform();
+	}
+
+	void Actor::SetActorRotation(const float newRotation)
+	{
+		_baseShapeActor->setRotation(newRotation);
 		UpddatePhysicsTransform();
 	}
 
@@ -148,6 +153,8 @@ namespace eb
 	// ========
 
 	// void
+
+	// Physics ======================================================================
 	void Actor::InitPhysics()
 	{
 		if (!_physicsBody)
@@ -167,34 +174,61 @@ namespace eb
 	{
 		if (_physicsBody)
 		{
-			float physicsScale = PhysicsSystem::Get().GetPhysicsScale();
-			b2Vec2 pos{ GetActorLocation().x * physicsScale, GetActorLocation().y * physicsScale };
-			
-			_physicsBody->SetTransform(pos, 0.f);
+			// Convert position to meters, accounting for center offset
+			sf::Vector2f pixelPos(
+				GetActorLocation().x + GetActorGlobalRectBounds().width / 2.f,
+				GetActorLocation().y + GetActorGlobalRectBounds().height / 2.f
+			);
+
+			b2Vec2 meterPos = PhysicsSystem::Get().PixelsToMetersVector(pixelPos);
+			float angleRadians = DegreesToRadians(GetActorRotation());
+
+			_physicsBody->SetTransform(meterPos, angleRadians);
 		}
 	}
 
 	void Actor::RenderDebugPhysics(sf::RenderWindow& window)
 	{
 		if (!_physicsBody)
-			return;
+			return///ERROR
+			// get rid of the pixels to meters. redo physics bodies, create a sure fire test to gurentee accuracy. Figure out why listeners are being added over and over in a loop. 
 
 		sf::RectangleShape debugShape;
 
-		if (auto rect = dynamic_cast<sf::RectangleShape*>(_baseShapeActor.get())) {
+		// Use same bounds calculation as physics listener
+		if (auto rect = dynamic_cast<sf::RectangleShape*>(_baseShapeActor.get()))
+		{
+			// Just use original size directly
 			debugShape.setSize(rect->getSize());
-			debugShape.setOrigin(rect->getSize().x / 2.f, rect->getSize().y / 2.f);
+			debugShape.setOrigin(rect->getOrigin().x + (rect->getSize().x / 2.f),
+				rect->getOrigin().y + (rect->getSize().y / 2.f));
+		}
+		else if (auto circle = dynamic_cast<sf::CircleShape*>(_baseShapeActor.get()))
+		{
+			float diameter = circle->getRadius() * 2;
+			b2Vec2 boundInMeters = PhysicsSystem::Get().PixelsToMetersVector(sf::Vector2f(diameter / 2.f, diameter / 2.f));
+
+			sf::Vector2f pixelBounds = PhysicsSystem::Get().MetersToPixelsVector(boundInMeters);
+
+			debugShape.setSize(sf::Vector2f(pixelBounds.x * 2, pixelBounds.y * 2));
+			debugShape.setOrigin(sf::Vector2f{ circle->getOrigin().x + circle->getRadius(),
+											 circle->getOrigin().y + circle->getRadius() });
 		}
 
-		float physicsScale = PhysicsSystem::Get().GetPhysicsScale();
+		// Get position from physics body
+		b2Vec2 bodyPosition = _physicsBody->GetPosition();
+		sf::Vector2f pixelPos = PhysicsSystem::Get().MetersToPixelsVector(bodyPosition);
+		debugShape.setPosition(pixelPos);
 
-		debugShape.setPosition(
-			GetActorLocation().x * physicsScale + GetActorGlobalRectBounds().width / 2.f,
-			GetActorLocation().y * physicsScale + GetActorGlobalRectBounds().height / 2.f);
-		debugShape.setRotation(GetActorRotation());
+		// Get rotation from physics body
+		float rotationDegrees = RadiansToDegrees(_physicsBody->GetAngle());
+		debugShape.setRotation(rotationDegrees);
+
 		debugShape.setFillColor(sf::Color::Transparent);
 		debugShape.setOutlineColor(sf::Color::Red);
 		debugShape.setOutlineThickness(1.0f);
+
+
 
 		window.draw(debugShape);
 	}

@@ -17,6 +17,9 @@
 ### Processes
 2.1.Calling An Actor 
 
+### Physics System
+3.1 Physics System Overview
+
 ---
 
 # Engine Files
@@ -557,3 +560,163 @@ void Block_Base::SomeFunction()
 ---
 ---
 
+# Physics System 
+
+## 3.1. Physics System Overview
+
+The physics system in the engine uses Box2D for simulation and provides a seamless integration with SFML graphics. It manages:
+- Physics body creation and destruction
+- Collision detection and responses
+- Coordinate system conversion between pixels and meters
+- Debug visualization
+
+## 3.2. Key Components
+
+### PhysicsSystem
+- Singleton class managing the Box2D world
+- Handles physics body lifecycle
+- Provides coordinate conversion utilities
+- Configurable simulation parameters
+
+### PhysicsContactListener
+- Manages collision events between actors
+- Provides Begin/End overlap notifications
+- Automatically triggers actor overlap events
+
+## 3.3. Actor Physics Integration
+
+### Enabling Physics
+```cpp
+// In your actor class
+void YourActor::BeginPlay()
+{
+    SetPhysicsEnabled(true);  // Automatically creates physics body
+}
+```
+
+### Physics Properties
+- Default configuration:
+  - Dynamic body type
+  - Density: 1.0f
+  - Friction: 0.3f
+  - Sensor mode enabled (triggers overlaps without physical collision)
+  - Zero gravity environment
+
+### Debug Visualization
+- Red outline shows physics body bounds
+- Enable/disable via `_debugDrawEnabled` flag in Actor.h
+- Helps verify physics/visual alignment
+
+## 3.4. Coordinate Systems
+
+### Physics Scale
+- Box2D works in meters
+- SFML works in pixels
+- Default scale: 32 pixels = 1 meter
+- Conversion handled automatically via:
+  ```cpp
+  // Converting between coordinate systems
+  float metersValue = PhysicsSystem::Get().PixelsToMetersValue(pixelsValue);
+  float pixelsValue = PhysicsSystem::Get().MetersToPixelsValue(metersValue);
+  ```
+
+## 3.5. Physics Events
+
+### Overlap Events
+```cpp
+// Override in your actor class
+void OnActorBeginOverlap(Actor* hitActor) override
+{
+    // Called when physics bodies start overlapping
+}
+
+void OnActorEndOverlap(Actor* hitActor) override
+{
+    // Called when physics bodies stop overlapping
+}
+```
+
+## 3.6. Implementation Example
+
+```cpp
+class PhysicsActor : public Actor
+{
+public:
+    PhysicsActor(World* world) : Actor(world)
+    {
+        SetPhysicsEnabled(true);  // Enable physics
+    }
+
+    void BeginPlay() override
+    {
+        // Physics is now initialized
+    }
+
+    void OnActorBeginOverlap(Actor* other) override
+    {
+        // Handle collision start
+    }
+
+    void OnActorEndOverlap(Actor* other) override
+    {
+        // Handle collision end
+    }
+};
+```
+
+## 3.7. Physics Synchronization
+
+### Actor-to-Physics
+- Called when manually moving actor
+- Updates physics body position/rotation
+- Handles coordinate conversion automatically
+```cpp
+void SetActorLocation(const sf::Vector2f& newLocation);
+void SetActorRotation(const float newRotation);
+```
+
+### Physics-to-Actor
+- Called each frame during actor tick
+- Updates visual representation to match physics
+- Handles coordinate conversion automatically
+```cpp
+void SyncWithPhysics();  // Called automatically in Tick
+```
+
+## 3.8. Best Practices
+
+1. **Initialization**
+   - Enable physics in BeginPlay
+   - Verify debug visualization alignment
+   - Set initial position before enabling physics
+
+2. **Movement**
+   - Use SetActorLocation for immediate positioning
+   - Let physics handle continuous movement
+   - Remember to handle rotation if needed
+
+3. **Cleanup**
+   - Physics automatically disabled on actor destruction
+   - No manual cleanup needed for normal usage
+
+4. **Debug**
+   - Enable debug drawing during development
+   - Verify physics bounds match visual bounds
+   - Check scale factor if alignments seem off
+
+## 3.9. Common Issues and Solutions
+
+1. **Misaligned Visuals**
+   - Verify center offset calculations
+   - Check physics scale factor
+   - Enable debug visualization
+
+2. **Overlap Not Detecting**
+   - Verify both actors have physics enabled
+   - Check if fixtures are set as sensors
+   - Ensure actors aren't pending destroy
+
+3. **Performance**
+   - Adjust velocity/position iterations
+   - Disable physics when not needed
+   - Use appropriate scale factors

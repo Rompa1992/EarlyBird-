@@ -24,6 +24,8 @@ namespace eb
 		void Render(sf::RenderWindow& window);																									// Called From World::Render();
 		void AddActorLocationOffset(const sf::Vector2f& offsetAmount);
 
+		//TODO: Document physics process & its cpp - figure out the scale thing. make sure the physics boxes are alliged with the actors correctly. AssetManager start.
+
 		virtual void Destroy() override;
 
 		virtual void BeginPlay();
@@ -32,6 +34,7 @@ namespace eb
 		virtual void OnActorEndOverlap(Actor* hitActor);
 
 		void SetActorLocation(const sf::Vector2f& newLocation);
+		void SetActorRotation(const float newRotation);
 		void SetPhysicsEnabled(bool enable);
 
 		// getters
@@ -44,11 +47,10 @@ namespace eb
 
 		sf::Vector2f GetActorLocation() const;
 		float GetActorRotation() const;
+		shared_ptr<sf::Shape> GetBaseShape() const { return _baseShapeActor; }
 		// end getters
 
 		virtual ~Actor();
-
-		// From here take some quick notes of the lightYears code, write down what is needed for this game and make it without reference. 
 
 	private:
 		// Physics
@@ -69,4 +71,3 @@ namespace eb
 	};
 }
 
-//TODO: Document physics process & its cpp. AssetManager

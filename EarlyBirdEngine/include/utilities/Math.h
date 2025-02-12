@@ -9,12 +9,12 @@ namespace eb
     /* DegreesToRadians: Converts an angle from degrees to radians.
        - Use case: When you need to work with trigonometric functions that require radians.
        - Example: float radians = DegreesToRadians(90.f); // Returns 1.5708 (PI/2) */
-    inline float DegreesToRadians(const float degrees);
+    float DegreesToRadians(const float degrees);
 
     /* RadiansToDegrees: Converts an angle from radians to degrees.
        - Use case: When you need to display or use angles in degrees.
        - Example: float degrees = RadiansToDegrees(1.5708f); // Returns 90 */
-    inline float RadiansToDegrees(const float radians);
+    float RadiansToDegrees(const float radians);
 
     /* RotationToVector: Converts a rotation angle (in degrees) to a unit vector.
        - Use case: When you need to convert a rotation into a direction vector (e.g., for movement).

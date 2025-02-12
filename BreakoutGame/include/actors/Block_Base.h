@@ -14,7 +14,6 @@ namespace bo
 		virtual void Tick(float deltaTime) override;
 		virtual void BeginPlay() override;
 
-	private:
-		float _velocity;
+
 	};
 }

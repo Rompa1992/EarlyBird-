@@ -47,6 +47,14 @@ namespace eb
         // Get the physics scale (conversion factor between physics units and world units)
         float GetPhysicsScale() const { return _physicsScale; }
 
+        // Convert single values
+        float PixelsToMetersValue(float pixels) const;
+        float MetersToPixelsValue(float meters) const;
+
+        // convert vectors
+        b2Vec2 PixelsToMetersVector(const sf::Vector2f& pixels) const;
+        sf::Vector2f MetersToPixelsVector(const b2Vec2& meters) const;
+
     protected:
         // Constructor (protected to enforce singleton pattern)
         PhysicsSystem();
