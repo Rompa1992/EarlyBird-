@@ -35,6 +35,7 @@ namespace eb
 		void CleanCycle();																						// Called from Application TickInternal();
 
 		sf::Vector2u GetWindowSize() const;
+		float GetTargetFrameRate() const;
 
 		/*
 		 * This function creates a new actor, passing a reference to this world

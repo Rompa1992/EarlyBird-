@@ -87,6 +87,11 @@ namespace eb
 		return _owningApplication->GetWindowSize();
 	}
 
+	float World::GetTargetFrameRate() const
+	{
+		return _owningApplication->GetTargetFrameRate();
+	}
+
 	World::~World()
 	{
 		// Nothing to implement.

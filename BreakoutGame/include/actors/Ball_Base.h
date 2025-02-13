@@ -1,11 +1,13 @@
 #pragma once 
 
+#include "actors/Player.h"
 #include "framework/Actor.h"
 
 using namespace eb;
 
 namespace bo
 {
+	class Player;
 	class Ball_Base : public Actor
 	{
 	public:
@@ -13,6 +15,7 @@ namespace bo
 
 		virtual void Tick(float deltaTime) override;
 		virtual void BeginPlay() override;
+
 
 	protected:
 		sf::Vector2f _velocity;

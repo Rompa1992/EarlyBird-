@@ -100,7 +100,7 @@ namespace eb
 
     /**
      * Creates a physics body for the given actor and adds it to the physics world
-     * @param listener The actor to create a physics body for
+     * @param listener The actor to create a physics body for.
      * @return Pointer to the created Box2D body, or nullptr if creation fails
      */
     b2Body* PhysicsSystem::AddListener(Actor* listener)
@@ -111,42 +111,34 @@ namespace eb
         bodyDef.type = b2_dynamicBody;
         bodyDef.userData.pointer = reinterpret_cast<uintptr_t>(listener);
 
-        sf::Vector2f pos = listener->GetActorLocation();
+        b2Vec2 bodyBounds{};
+        b2Vec2 bodyPosition{};
 
-        // Create rectangular collision box for both shape types
-        b2Vec2 boundInMeters;
+        // GET shape bounds =============================================================================================================
 
-        if (auto rect = dynamic_cast<sf::RectangleShape*>(listener->GetBaseShape().get()))
+        if (listener->IsRectShape())
         {
-           
-            sf::Vector2f rectSize = rect->getSize();
-            boundInMeters = PixelsToMetersVector(sf::Vector2f(rectSize.x / 2.f, rectSize.y / 2.f));
+            bodyBounds = b2Vec2{ listener->GetActorGlobalRectBounds().width * GetPhysicsScale(), listener->GetActorGlobalRectBounds().height * GetPhysicsScale() };
 
-            sf::Vector2f centerPos(
-                pos.x + rect->getOrigin().x + (rect->getSize().x / 2.f),
-                pos.y + rect->getOrigin().y + (rect->getSize().y / 2.f)
-            );
-
-            bodyDef.position = PixelsToMetersVector(centerPos);
+            bodyPosition = { listener->GetActorLocation().x + (listener->GetActorGlobalRectBounds().width / 2.f), listener->GetActorLocation().y + (listener->GetActorGlobalRectBounds().height / 2.f)};
         }
-        else if (auto circle = dynamic_cast<sf::CircleShape*>(listener->GetBaseShape().get()))
+        else if (listener->IsCircleShape())
         {
-            float diameter = circle->getRadius() * 2;
-            boundInMeters = PixelsToMetersVector(sf::Vector2f(diameter / 2.f, diameter / 2.f));
+            float diameter = std::round(listener->GetActorGlobalRectBounds().width * GetPhysicsScale());  // Round to nearest int
+            float radius = diameter / 2.0f;
+            bodyBounds = b2Vec2{ radius * 2.f, radius * 2.f };
 
-            sf::Vector2f centerPos(
-                pos.x + circle->getOrigin().x + circle->getRadius(),
-                pos.y + circle->getOrigin().y + circle->getRadius()
-            );
-
-            bodyDef.position = PixelsToMetersVector(centerPos);
+            bodyPosition = { listener->GetActorLocation().x + radius, listener->GetActorLocation().y + radius };
         }
 
+        // End GET shape bounds =========================================================================================================
+
+        bodyDef.position.Set(bodyPosition.x, bodyPosition.y);
         bodyDef.angle = DegreesToRadians(listener->GetActorRotation());
         b2Body* body = _physicsWorld.CreateBody(&bodyDef);
 
         b2PolygonShape shape;
-        shape.SetAsBox(boundInMeters.x, boundInMeters.y);
+        shape.SetAsBox(bodyBounds.x / 2, bodyBounds.y / 2);
 
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &shape;
@@ -155,7 +147,6 @@ namespace eb
         fixtureDef.isSensor = true;
 
         body->CreateFixture(&fixtureDef);
-       PRINT("Physics body size in meters: %f, %f", boundInMeters.x, boundInMeters.y);
 
         return body;
     }
@@ -177,30 +168,25 @@ namespace eb
         _physicsSystem = std::move(unique_ptr<PhysicsSystem>{new PhysicsSystem});
     }
 
-    // Conversions =================================================================
-
-    float PhysicsSystem::PixelsToMetersValue(float pixels) const
+    b2Vec2 PhysicsSystem::GetBodyBounds(Actor* listener) const
     {
-        return pixels * _physicsScale / 32.0f;
+        if (listener->IsRectShape())
+        {
+            return b2Vec2{ listener->GetActorGlobalRectBounds().width * GetPhysicsScale(), listener->GetActorGlobalRectBounds().height * GetPhysicsScale() };
+
+        }
+        else if (listener->IsCircleShape())
+        {
+            float radius = listener->GetActorGlobalRectBounds().width * GetPhysicsScale();
+            return b2Vec2{ radius , radius };
+        }
+        else return b2Vec2{};
     }
 
-    float PhysicsSystem::MetersToPixelsValue(float meters) const
+    b2Vec2 PhysicsSystem::GetBodyPosition() const
     {
-        return meters * 32.0f / _physicsScale; 
+        return _physicsWorld.GetBodyList()->GetPosition();
     }
-
-    b2Vec2 PhysicsSystem::PixelsToMetersVector(const sf::Vector2f& pixels) const
-    {
-        return b2Vec2(PixelsToMetersValue(pixels.x), PixelsToMetersValue(pixels.y));
-
-    }
-
-    sf::Vector2f PhysicsSystem::MetersToPixelsVector(const b2Vec2& meters) const
-    {
-        return sf::Vector2f(MetersToPixelsValue(meters.x), MetersToPixelsValue(meters.y));
-    }
-
-    // End Conversions ============================================================
     
     /**
      * Processes and removes any physics bodies that have been marked for removal

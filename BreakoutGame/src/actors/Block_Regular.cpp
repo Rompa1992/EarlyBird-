@@ -19,8 +19,18 @@ namespace bo
 	void Block_Regular::BeginPlay()
 	{
 		Block_Base::BeginPlay();
+		SetPhysicsEnabled(true);
+	}
 
-		//@Note: SetEnablePhysics(true); called from actor BeginPlay();
+	void Block_Regular::OnActorBeginOverlap(Actor* hitActor)
+	{
+		PRINT_COLOR(YELLOW, "Actor Block Overlapped");
+		Destroy();
+
+	}
+
+	void Block_Regular::OnActorEndOverlap(Actor* hitActor)
+	{
 	}
 
 	// private:

@@ -13,6 +13,8 @@ namespace bo
 
 		virtual void Tick(float deltaTime) override;
 		virtual void BeginPlay() override;
+		virtual void OnActorBeginOverlap(Actor* hitActor) override;
+		virtual void OnActorEndOverlap(Actor* hitActor) override;
 
 		void SpawnBlocks(World* currentWorld);
 

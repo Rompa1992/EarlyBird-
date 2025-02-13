@@ -14,6 +14,7 @@ namespace eb
 		void RunMainLoop();																													// Called in EntryPoint.cpp																									// Called by the game application "weak_ptr<LevelOne> newWorld = LoadWorld<LevelOne>();"
 
 		sf::Vector2u GetWindowSize() const;
+		float GetTargetFrameRate() const { return _targetFrameRate; }
 
 		template<typename WorldType>
 		weak_ptr<WorldType> LoadWorld();

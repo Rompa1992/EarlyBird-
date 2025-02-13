@@ -1,6 +1,7 @@
 #pragma once
 
 #include "actors/Ball_Base.h"
+#include "SFML/Graphics.hpp"
 
 using namespace eb;
 
@@ -17,7 +18,8 @@ namespace bo
 		virtual void OnActorEndOverlap(Actor* hitActor) override;
 
 	private:
-		bool _hasHitActor;
+		sf::Vector2f GetBallHitNormal(const sf::Vector2f ballVelocity, const sf::FloatRect& blockBounds, const sf::FloatRect& ballBounds);
+
 
 	};
 }

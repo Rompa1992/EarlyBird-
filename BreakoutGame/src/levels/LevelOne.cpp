@@ -14,10 +14,6 @@ namespace bo
 		float playerYStartingPos = GetWindowSize().y * 0.9;
 		_player.lock()->SetActorLocation(sf::Vector2f(playerXStartingPos, playerYStartingPos));
 
-		_ball = SpawnActor<Ball_Regular>(25.f, sf::Color::Blue);
-		float ballXStartingPos = GetWindowSize().x / 2 - _ball.lock()->GetActorGlobalRectBounds().width / 2;
-		float ballYStartingPos = GetWindowSize().y * 0.5;
-		_ball.lock()->SetActorLocation(sf::Vector2f(ballXStartingPos, ballYStartingPos));
 
 		// test blocks
 		_blocks = SpawnActor<Block_Regular>(sf::Vector2f{ 100.f, 25.f }, sf::Color::White);
@@ -28,6 +24,10 @@ namespace bo
 		// array of blocks
 		_blocks.lock()->SpawnBlocks(this);
 
+		_ball = SpawnActor<Ball_Regular>(12.f, sf::Color::Cyan);
+		float ballXStartingPos = GetWindowSize().x / 2 - _ball.lock()->GetActorGlobalRectBounds().width / 2;
+		float ballYStartingPos = GetWindowSize().y * 0.5;
+		_ball.lock()->SetActorLocation(sf::Vector2f(ballXStartingPos, ballYStartingPos));
 	}
 
 	void LevelOne::BeginPlay()

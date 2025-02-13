@@ -45,6 +45,9 @@ namespace eb
 		const World* GetWorld() const { return _owningWorld; }
 		World* GetWorld() { return _owningWorld; }
 
+		bool IsRectShape() const { return _isRectShape; }
+		bool IsCircleShape() const { return _isCircleShape; }
+
 		sf::Vector2f GetActorLocation() const;
 		float GetActorRotation() const;
 		shared_ptr<sf::Shape> GetBaseShape() const { return _baseShapeActor; }
@@ -60,6 +63,8 @@ namespace eb
 		void RenderDebugPhysics(sf::RenderWindow& window);
 
 		shared_ptr<sf::Shape> _baseShapeActor;
+		bool _isRectShape;
+		bool _isCircleShape;
 
 		World* _owningWorld;
 		bool _hasBeganPlay;

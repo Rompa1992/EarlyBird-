@@ -25,7 +25,7 @@ namespace eb
        - Use case: When you need to determine the distance or magnitude of a vector.
        - Example: float length = GetVectorLength(sf::Vector2f(3.f, 4.f)); // Returns 5 */
     template<typename T>
-    float GetVectorLength(const sf::Vector2<T> vector)
+    float GetVectorLength(const sf::Vector2<T>& vector)
     {
         return std::sqrt(vector.x * vector.x + vector.y * vector.y);
     }
@@ -34,14 +34,14 @@ namespace eb
        - Use case: When you need a vector with the same direction but a length of 1.
        - Example: sf::Vector2f normalized = NormalizeVector(sf::Vector2f(3.f, 4.f)); // Returns (0.6, 0.8) */
     template<typename T>
-    sf::Vector2<T>& NormalizeVector(sf::Vector2<T> vectorToNoramize)
+    sf::Vector2<T>& NormalizeVector(sf::Vector2<T>& vectorToNoramize)
     {
         // Calculate the length of the vector
         float vectorLength = GetVectorLength<T>(vectorToNoramize);
 
         // If the length is 0, return the original vector (cannot normalize a zero vector)
         if (vectorLength == 0.f)
-            return vectorToNoramize;
+            return vectorToNoramize = sf::Vector2<T>{ 0,0 };
 
         // Calculate the scale factor to normalize the vector
         float scaleFactor = 1 / vectorLength;

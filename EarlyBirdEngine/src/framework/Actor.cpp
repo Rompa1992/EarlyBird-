@@ -17,6 +17,8 @@ namespace eb
 	Actor::Actor(World* owningWorld, sf::Vector2f rectSize, sf::Color color)
 		: _owningWorld{ owningWorld },
 		_baseShapeActor{ std::make_shared<sf::RectangleShape>(rectSize) },
+		_isRectShape{ true },
+		_isCircleShape{ false },
 		_hasBeganPlay{ false },
 		_physicsBody{ nullptr },
 		_isPhysicsEnabled{ false }
@@ -27,6 +29,8 @@ namespace eb
 	Actor::Actor(World* owningWorld, float radiusSize, sf::Color color)
 		: _owningWorld{ owningWorld },
 		_baseShapeActor{ std::make_shared<sf::CircleShape>(radiusSize) },
+		_isRectShape{ false },
+		_isCircleShape{ true },
 		_hasBeganPlay{ false },
 		_physicsBody{ nullptr },
 		_isPhysicsEnabled{ false }
@@ -79,7 +83,6 @@ namespace eb
 	void Actor::BeginPlay()
 	{
 		//PRINT("Actor has began play");
-		SetPhysicsEnabled(true);
 	}
 
 	void Actor::Tick(float deltaTime)
@@ -158,7 +161,9 @@ namespace eb
 	void Actor::InitPhysics()
 	{
 		if (!_physicsBody)
+		{
 			_physicsBody = PhysicsSystem::Get().AddListener(this);
+		}
 	}
 
 	void Actor::UnInitPhysics()
@@ -174,61 +179,39 @@ namespace eb
 	{
 		if (_physicsBody)
 		{
-			// Convert position to meters, accounting for center offset
-			sf::Vector2f pixelPos(
-				GetActorLocation().x + GetActorGlobalRectBounds().width / 2.f,
-				GetActorLocation().y + GetActorGlobalRectBounds().height / 2.f
-			);
+			float physicsScale = PhysicsSystem::Get().GetPhysicsScale();
 
-			b2Vec2 meterPos = PhysicsSystem::Get().PixelsToMetersVector(pixelPos);
-			float angleRadians = DegreesToRadians(GetActorRotation());
+			b2Vec2 pos{};
 
-			_physicsBody->SetTransform(meterPos, angleRadians);
+			if (_isRectShape)
+				 pos = { (GetActorLocation().x + GetActorGlobalRectBounds().width / 2) * physicsScale, 
+						 (GetActorLocation().y + GetActorGlobalRectBounds().height / 2) * physicsScale };
+			else
+				 pos = { (GetActorLocation().x + GetActorGlobalRectBounds().width / 2) * physicsScale, 
+						 (GetActorLocation().y + GetActorGlobalRectBounds().width / 2) * physicsScale };
+
+			float rotation = DegreesToRadians(GetActorRotation());
+
+			_physicsBody->SetTransform(pos, rotation);
 		}
 	}
 
 	void Actor::RenderDebugPhysics(sf::RenderWindow& window)
 	{
-		if (!_physicsBody)
-			return///ERROR
-			// get rid of the pixels to meters. redo physics bodies, create a sure fire test to gurentee accuracy. Figure out why listeners are being added over and over in a loop. 
-
 		sf::RectangleShape debugShape;
+		sf::Vector2f currentBodyBounds = { PhysicsSystem::Get().GetBodyBounds(this).x, PhysicsSystem::Get().GetBodyBounds(this).y };
+		sf::Vector2f currentBodyPosition = { PhysicsSystem::Get().GetBodyPosition().x, PhysicsSystem::Get().GetBodyPosition().y };
 
-		// Use same bounds calculation as physics listener
-		if (auto rect = dynamic_cast<sf::RectangleShape*>(_baseShapeActor.get()))
-		{
-			// Just use original size directly
-			debugShape.setSize(rect->getSize());
-			debugShape.setOrigin(rect->getOrigin().x + (rect->getSize().x / 2.f),
-				rect->getOrigin().y + (rect->getSize().y / 2.f));
-		}
-		else if (auto circle = dynamic_cast<sf::CircleShape*>(_baseShapeActor.get()))
-		{
-			float diameter = circle->getRadius() * 2;
-			b2Vec2 boundInMeters = PhysicsSystem::Get().PixelsToMetersVector(sf::Vector2f(diameter / 2.f, diameter / 2.f));
+		debugShape.setSize(currentBodyBounds);
+		debugShape.setOrigin(0, 0);																																								// offset 0,0 as we are matching physics exactly.
+		debugShape.setPosition(GetActorLocation().x ,GetActorLocation().y );
 
-			sf::Vector2f pixelBounds = PhysicsSystem::Get().MetersToPixelsVector(boundInMeters);
-
-			debugShape.setSize(sf::Vector2f(pixelBounds.x * 2, pixelBounds.y * 2));
-			debugShape.setOrigin(sf::Vector2f{ circle->getOrigin().x + circle->getRadius(),
-											 circle->getOrigin().y + circle->getRadius() });
-		}
-
-		// Get position from physics body
-		b2Vec2 bodyPosition = _physicsBody->GetPosition();
-		sf::Vector2f pixelPos = PhysicsSystem::Get().MetersToPixelsVector(bodyPosition);
-		debugShape.setPosition(pixelPos);
-
-		// Get rotation from physics body
 		float rotationDegrees = RadiansToDegrees(_physicsBody->GetAngle());
 		debugShape.setRotation(rotationDegrees);
 
 		debugShape.setFillColor(sf::Color::Transparent);
 		debugShape.setOutlineColor(sf::Color::Red);
 		debugShape.setOutlineThickness(1.0f);
-
-
 
 		window.draw(debugShape);
 	}

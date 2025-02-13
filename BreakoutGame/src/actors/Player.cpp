@@ -26,8 +26,7 @@ namespace bo
 	void Player::BeginPlay()
 	{
 		Block_Base::BeginPlay();
-
-		//@Note: SetEnablePhysics(true); called from actor BeginPlay();
+		SetPhysicsEnabled(true);
 	}
 
 	// private:
