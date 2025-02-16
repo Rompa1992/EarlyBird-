@@ -1,6 +1,5 @@
 #include "actors/Ball_Regular.h"
 
-#include "framework/World.h" 
 #include "utilities/Math.h"
 
 namespace bo
@@ -8,11 +7,12 @@ namespace bo
 	Ball_Regular::Ball_Regular(World* owningWorld, float circleRadius, sf::Color color)
 		: Ball_Base{ owningWorld, circleRadius, color }
 	{
-		_velocity = { 20.f , 500.f }; /// TODO: random range X
+		_velocity = { 20.f , 400.f }; /// TODO: random range X
 	}
 
 	void Ball_Regular::Tick(float deltaTime)
 	{
+		Ball_Base::Tick(deltaTime);
 		AddActorLocationOffset(_velocity * deltaTime);
 	}
 
@@ -24,41 +24,49 @@ namespace bo
 
 	void Ball_Regular::OnActorBeginOverlap(Actor* hitActor)
 	{
+
+		Ball_Base::OnActorBeginOverlap(hitActor);
+
 		/* CollisionResponseCases:
 		 * 
 		 *  normal = GetBallHitNormal();
 		 * 
-		 *  Vertical Collision:
+		 *  Vertical Collision - Player Moving:
 		 *    A. Ball Moving UP & TOP HIT || DOWN & BOTTOM HIT
 		 *		 if ( normal.y == -1 || normal.y == 1)
 		 *			_velocity.y *= -1;
+		 *			player Imparts friction speed based on player velocity
 		 *
-		 *  Horizontal Collision - static block:
-		 *    C. Ball LEFT || RIGHT Side Hit & Ball Moving DOWN || UP
+		 *  Horizontal Collisions - Player moving:
+		 *    B. Ball Side Hit - Ball Moving DOWN & Ball Moving L || R
+		 *									   && Player Moving L || R
+		 *		 if ( normal.x == -1 || normal.x == 1)
+		 *			 x *= -1
+		 *			 player side hit speed based on player velocity
+		 * 
+		 *	  C. Ball Side Hit - Ball Moving DOWN & Ball Moving L || R
+		 *									   && Player Moving R || L 
+		 *		 if ( normal.x == -1 || normal.x == 1)
+		 *			 x *= 1 
+		 *			 player side hit speed based on player velocity
+		 *
+		 * 	Vertical Collision - Static Block:
+		 *    D. Ball Moving UP & TOP HIT || DOWN & BOTTOM HIT
+		 *		 if ( normal.y == -1 || normal.y == 1)
+		 *			_velocity.y *= -1;
+		 * 
+		 *  Horizontal Collision - Static block:
+		 *    E. Ball LEFT || RIGHT Side Hit & Ball Moving DOWN || UP
 		 *		 if ( normal.x == -1 || normal.x == 1)
 		 *			_velocity.x *= -1;
 		 * 
-		 *  Horizontal Collisions - with player moving:
-		 *    C. Ball Left Side Hit - Ball Moving DOWN & Player Moving LEFT
-		 *       - x *= -1
-		 *       - Adjust downward velocity
-		 *    D. Ball Right Side Hit - Ball Moving DOWN & Player Moving RIGHT
-		 *       - x *= -1
-		 *       - Adjust downward velocity
-		 * 
-		 *       - Adjust downward velocity
-		 *
-		 *  Edge Case Considerations:
-		 *     - Handling velocity zero-crossing
-		 *     - Preventing velocity anomalies
-		 *     - Detailed movement interaction
 		 *
 		*/
+
 		sf::Vector2f normal = GetBallHitNormal(_velocity, hitActor->GetActorGlobalRectBounds(), GetActorGlobalRectBounds());
 
 		// Get Player Velocity ===================================
-		float playerVelocity{0.f};
-		float playerImpartSpeed{ 75.f };
+		float playerVelocity{};
 
 		if(Player* playerPtr = dynamic_cast<Player*>(hitActor))
 			 playerVelocity = playerPtr->GetVelocity();
@@ -68,25 +76,48 @@ namespace bo
 		
 		if (std::abs(playerVelocity) > 0.f) // Player imparts speed upon the ball
 		{
-			if (normal.y == -1 || normal.y == 1)
+			if (normal.y == -1.f || normal.y == 1.f)
 			{
-				_velocity.y *= -1;
+				// Case A
+				_velocity.y *= -1.f;
 
 				if (playerVelocity < 0.f)
-					_velocity.x -= playerImpartSpeed;
+					_velocity.x -= PlayerImpartFrictionSpeed;
 				else
-					_velocity.x += playerImpartSpeed;
+					_velocity.x += PlayerImpartFrictionSpeed;
 			}
-			else if (normal.x == -1 || normal.x == 1)
-				_velocity.x *= -1;
+		else if (normal.x == -1.f || normal.x == 1.f)
+			{
+				// Case B
+				if (playerVelocity < 0.f && _velocity.x < 0.f)
+				{
+					 // B.L && P.L (++)
+					_velocity.x -= PlayerImpartSideHitSpeed;
+				}
+				else if (playerVelocity > 0.f && _velocity.x > 0.f)
+				{
+					// B.R && P.R (++)
+					_velocity.x += PlayerImpartSideHitSpeed;
+				}
+				else if (playerVelocity > 0.f && _velocity.x < 0.f)
+				{
+					// B.L && P.R (++)
+					_velocity.x = _velocity.x * -1.f + PlayerImpartSideHitSpeed;
+				}
+				else if (playerVelocity < 0.f && _velocity.x > 0.f)
+				{
+					// B.R && P.L (++)
+					_velocity.x = _velocity.x * -1.f - PlayerImpartSideHitSpeed;
+				}
+			}	
 		}
 		else // ball hits a static block
 		{
 
-			if (normal.y == -1 || normal.y == 1)
-				_velocity.y *= -1;
-			else if (normal.x == -1 || normal.x == 1)
-				_velocity.x *= -1;
+			if (normal.y == -1.f || normal.y == 1.f)
+				_velocity.y *= -1.f;
+			else if (normal.x == -1.f || normal.x == 1.f)
+				_velocity.x *= -1.f;
 		}
 
 		
@@ -96,83 +127,8 @@ namespace bo
 
 	void Ball_Regular::OnActorEndOverlap(Actor* hitActor)
 	{
+		Ball_Base::OnActorEndOverlap(hitActor);
 	}
-
-	sf::Vector2f Ball_Regular::GetBallHitNormal(const sf::Vector2f ballVelocity, const sf::FloatRect& blockBounds, const sf::FloatRect& ballBounds) 
-	{
-		/// BallHitNormal Diagram 
-		//
-		//					 { 0.f, -1.f }
-		//						   |
-		//						   |			
-		//                     |=======|
-		//					   |=======|
-		//   { -1.f, 0.f } <-- |=======| --> { 1.f, 0.f }
-		//					   |=======|
-		//                     |=======|
-		//						   |
-		//						   |
-		//					 { 0.f, 1.f }
-		//
-
-		
-		const int frameRate = GetWorld()->GetTargetFrameRate();
-		float intersectionCompensation{ (std::abs(_velocity.y) / frameRate) * 2.f }; // Adjust for actor position inaccuracies caused by ball penetrating block during collision detection
-
-		if (ballVelocity.y < 0.f) // Ball moving down
-		{
-			if ((ballBounds.left + ballBounds.width) - intersectionCompensation > blockBounds.left && ballBounds.left + intersectionCompensation < blockBounds.left + blockBounds.width)
-			{
-				// Ball inside bounds of Block Actor = Bottom of Ball Hit 
-				return sf::Vector2f{ 0.f, 1.f }; 
-			}
-			else if ((ballBounds.left + ballBounds.width) - intersectionCompensation <= blockBounds.left)
-			{
-				// Ball outside of Block bound on the left = Left Side of ball Hit 
-				return sf::Vector2f{ -1.f, 0.f };
-			}
-			else if (ballBounds.left + intersectionCompensation >= blockBounds.left + blockBounds.width)
-			{
-				// Ball outside of Block bound on the right = Right Side of ball Hit
-				return sf::Vector2f{ 1.f, 0.f };
-			}
-			else
-			{
-				PRINT_COLOR(RED, "GetSurfaceNormal: Ball moving down. RETURN 0,0");
-				return sf::Vector2f{ 0.f, 0.f };
-			}
-		}
-		else if (ballVelocity.y > 0.f) // Ball moving up
-		{
-			if ((ballBounds.left + ballBounds.width) - intersectionCompensation > blockBounds.left && ballBounds.left + intersectionCompensation < blockBounds.left + blockBounds.width)
-			{
-				// Ball inside left & right bounds of Block Actor = Top Hit
-				return sf::Vector2f{ 0.f, -1.f }; 
-			}
-			else if ((ballBounds.left + ballBounds.width) - intersectionCompensation <= blockBounds.left)
-			{
-				// Ball outside of Block bound on the left = Left Side of ball Hit 
-				return sf::Vector2f{ -1.f, 0.f };
-			}
-			else if (ballBounds.left + intersectionCompensation >= blockBounds.left + blockBounds.width)
-			{
-				// Ball outside of Block bound on the right = Right Side of ball Hit
-				return sf::Vector2f{ 1.f, 0.f }; 
-			}
-			else
-			{
-				PRINT_COLOR(RED, "GetSurfaceNormal: Ball moving down. RETURN 0,0");
-				return sf::Vector2f{ 0.f, 0.f };
-			}
-		}
-		else
-		{
-			PRINT_COLOR(RED, "GetSurfaceNormal: Ball NO DIRECTION. RETURN 0,0");
-			return sf::Vector2f{ 0.f, 0.f };
-		}
-		
-	}
-
 }
 
 

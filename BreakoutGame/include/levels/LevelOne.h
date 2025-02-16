@@ -2,23 +2,24 @@
 
 #include "framework/World.h"
 
-using namespace eb;
 
 namespace bo
 {
 	class Ball_Regular;
 	class Block_Regular;
+	class Block_Boundry;
 	class Player;
-	class LevelOne : public World
+	class LevelOne : public eb::World
 	{
 	public:
-		LevelOne(Application* owningApplication);
+		LevelOne(eb::Application* owningApplication);
 	
 	private:
 		virtual void BeginPlay() override;
 		 
-		weak_ptr<Player> _player;
-		weak_ptr<Ball_Regular> _ball;
-		weak_ptr<Block_Regular> _blocks;
+		eb::weak_ptr<Player> _player;
+		eb::weak_ptr<Ball_Regular> _ball;
+		eb::weak_ptr<Block_Regular> _blocks;
+		eb::weak_ptr<Block_Boundry> _boundry;
 	};
 }

@@ -2,21 +2,19 @@
 
 #include "actors/Block_Base.h"
 
-using namespace eb;
-
 namespace bo
 {
 	class Block_Regular : public Block_Base
 	{
 	public:
-		Block_Regular(World* owningWorld, sf::Vector2f rectSize, sf::Color color);
+		Block_Regular(eb::World* owningWorld, sf::Vector2f rectSize, sf::Color color);
 
 		virtual void Tick(float deltaTime) override;
 		virtual void BeginPlay() override;
 		virtual void OnActorBeginOverlap(Actor* hitActor) override;
 		virtual void OnActorEndOverlap(Actor* hitActor) override;
 
-		void SpawnBlocks(World* currentWorld);
+		void SpawnBlocks(eb::World* currentWorld);
 
 	};
 }

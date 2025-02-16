@@ -7,7 +7,7 @@ namespace bo
 {
 	// public:
 	// =======
-	Block_Regular::Block_Regular(World* owningWorld, sf::Vector2f rectSize, sf::Color color)
+	Block_Regular::Block_Regular(eb::World* owningWorld, sf::Vector2f rectSize, sf::Color color)
 		: Block_Base{ owningWorld, rectSize, color }
 	{
 	}
@@ -35,7 +35,7 @@ namespace bo
 
 	// private:
 	// ========
-	void Block_Regular::SpawnBlocks(World* currentWorld)
+	void Block_Regular::SpawnBlocks(eb::World* currentWorld)
 	{
 		float blockWidth{ 100.f };
 		float blockHeight{ 25.f };
@@ -67,7 +67,7 @@ namespace bo
 				default: blockColor = sf::Color::White; break;
 				}
 
-				weak_ptr<Block_Regular> block = currentWorld->SpawnActor<Block_Regular>(sf::Vector2f{ blockWidth, blockHeight }, blockColor);
+				eb::weak_ptr<Block_Regular> block = currentWorld->SpawnActor<Block_Regular>(sf::Vector2f{ blockWidth, blockHeight }, blockColor);
 				block.lock()->SetActorLocation(sf::Vector2f(j * blockXOffset + blockStartingXOffset, i * blockYOffset + blockStartingYOffset));
 			}
 		}

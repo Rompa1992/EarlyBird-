@@ -10,9 +10,9 @@ eb::Application* GetApplication()
 namespace bo
 {
 	GameApplication::GameApplication()
-		: Application(1920, 1080, "Breakout!!!", sf::Style::Resize | sf::Style::Close)
+		: Application(1920, 1080, "Breakout!!!", sf::Style::Titlebar | sf::Style::Close)
 	{
-		weak_ptr<LevelOne> newWorld = LoadWorld<LevelOne>();
+		eb::weak_ptr<LevelOne> newWorld = LoadWorld<LevelOne>();
 	}
 
 }

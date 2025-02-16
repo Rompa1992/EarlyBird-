@@ -9,7 +9,7 @@ namespace bo
 	Player::Player(eb::World* owningWorld, sf::Vector2f rectSize, sf::Color color)
 		: Block_Base{ owningWorld, rectSize, color },
 		_moveInput{ 0.f },
-		_speed{ 500.f },
+		_speed{ 600.f },
 		_velocity{ 0.f }
 	{
 

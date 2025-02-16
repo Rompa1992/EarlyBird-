@@ -3,7 +3,7 @@
 namespace bo
 {
 	Block_Base::Block_Base(eb::World* owningWorld, sf::Vector2f rectSize, sf::Color color)
-		: Actor{ owningWorld, rectSize, color }
+		: eb::Actor{ owningWorld, rectSize, color }
 	{
 	}
 
@@ -15,9 +15,5 @@ namespace bo
 	void Block_Base::BeginPlay()
 	{
 		Actor::BeginPlay();
-
-		//@Note: SetEnablePhysics(true); called from actor BeginPlay();
 	}
-
-	
 }
