@@ -24,9 +24,7 @@ namespace bo
 
 	void Block_Regular::OnActorBeginOverlap(Actor* hitActor)
 	{
-		PRINT_COLOR(YELLOW, "Actor Block Overlapped");
 		Destroy();
-
 	}
 
 	void Block_Regular::OnActorEndOverlap(Actor* hitActor)

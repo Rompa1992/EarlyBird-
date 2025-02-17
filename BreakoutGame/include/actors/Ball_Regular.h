@@ -6,6 +6,7 @@
 
 namespace bo
 {
+	class Core;
 	class Ball_Regular : public Ball_Base
 	{
 	public:
@@ -16,7 +17,7 @@ namespace bo
 		virtual void OnActorBeginOverlap(Actor* hitActor) override;
 		virtual void OnActorEndOverlap(Actor* hitActor) override;
 
-
+		
 
 	};
 }

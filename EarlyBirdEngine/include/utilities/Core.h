@@ -50,6 +50,25 @@ namespace eb
     template<typename T>
     using Set = std::unordered_set<T>;
 
+
+    class PerformanceMonitor 
+    {
+    public:
+        PerformanceMonitor();
+
+        void StartMeasurement();
+        void EndMeasurement(const char* label);
+
+        PerformanceMonitor* GetPerformanceProfiler() const { return _performanceProfiler; }
+
+    private:
+        double _startTime;
+
+        PerformanceMonitor* _performanceProfiler;
+    };
+
+
+
     // ANSI color codes for console output
 #define RESET   "\033[0m"
 #define RED     "\033[31m"

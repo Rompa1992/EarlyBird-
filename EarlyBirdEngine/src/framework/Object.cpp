@@ -11,13 +11,13 @@ namespace eb
 
 	void Object::Destroy()
 	{
-		// TODO: Broadcast destroy.
+		/// TODO: Broadcast destroy.
 		_isPendingDestroy = true;
 	}
 
 	Object::~Object()
 	{
-		PRINT_COLOR(RED, "Object was destroyed")
+		// PRINT_COLOR(RED, "Object was destroyed")
 	}
 
 	

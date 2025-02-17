@@ -1,5 +1,6 @@
 #include "actors/Ball_Regular.h"
 
+#include "utilities/Core.h"
 #include "utilities/Math.h"
 
 namespace bo
@@ -24,7 +25,6 @@ namespace bo
 
 	void Ball_Regular::OnActorBeginOverlap(Actor* hitActor)
 	{
-
 		Ball_Base::OnActorBeginOverlap(hitActor);
 
 		/* CollisionResponseCases:
@@ -120,9 +120,8 @@ namespace bo
 				_velocity.x *= -1.f;
 		}
 
-		
-		PRINT_COLOR(CYAN, "Vector: %f, %f", normal.x, normal.y);
-		PRINT_COLOR(RED, "Player vel: %f", playerVelocity);
+		// PRINT_COLOR(CYAN, "Vector: %f, %f", normal.x, normal.y);
+		// PRINT_COLOR(RED, "Player vel: %f", playerVelocity);
 	}
 
 	void Ball_Regular::OnActorEndOverlap(Actor* hitActor)

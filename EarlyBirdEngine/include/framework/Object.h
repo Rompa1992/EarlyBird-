@@ -4,6 +4,7 @@
 
 namespace eb
 {
+	class Core;
 	class Object : public std::enable_shared_from_this<Object>
 	{
 	public:
