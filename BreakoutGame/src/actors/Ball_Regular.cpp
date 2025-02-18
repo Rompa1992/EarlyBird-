@@ -5,8 +5,8 @@
 
 namespace bo
 {
-	Ball_Regular::Ball_Regular(World* owningWorld, float circleRadius, sf::Color color)
-		: Ball_Base{ owningWorld, circleRadius, color }
+	Ball_Regular::Ball_Regular(World* owningWorld, sf::Color color, float radiusSize)
+		: Ball_Base{ owningWorld, color, radiusSize }
 	{
 		_velocity = { 20.f , 400.f }; /// TODO: random range X
 	}

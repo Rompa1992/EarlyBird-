@@ -6,13 +6,14 @@ namespace bo
 {
 	// public:
 	// =======
-	Player::Player(eb::World* owningWorld, sf::Vector2f rectSize, sf::Color color)
-		: Block_Base{ owningWorld, rectSize, color },
+	Player::Player(eb::World* owningWorld, sf::Color color, sf::Vector2f rectSize)
+		: Block_Base{ owningWorld, color, rectSize },
 		_moveInput{ 0.f },
 		_speed{ 600.f },
 		_velocity{ 0.f }
 	{
-
+		color = sf::Color::White;
+		rectSize = { 300.f, 50.f };
 	}
 
 	void Player::Tick(float deltaTime)

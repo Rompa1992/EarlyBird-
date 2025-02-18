@@ -1,30 +1,55 @@
 #include "levels/LevelOne.h"
 
-#include "actors/Ball_Regular.h"
 #include "actors/Block_Regular.h"
-#include "actors/Block_Boundry.h"
 #include "actors/Player.h"
 
 namespace bo
 {
 	LevelOne::LevelOne(Application* owningApplication)
-		: eb::World{owningApplication}
+		: Level_Base{owningApplication}
 	{
-		// Player
-		_player = SpawnActor<Player>(sf::Vector2f{ 100.f, 25.f }, sf::Color::White);
-		float playerXStartingPos = GetWindowSize().x / 2 - _player.lock()->GetActorGlobalRectBounds().width / 2;
-		float playerYStartingPos = GetWindowSize().y * 0.9;
-		_player.lock()->SetActorLocation(sf::Vector2f(playerXStartingPos, playerYStartingPos));
-
+		
 		// BLOCKS
-		_blocks.lock()->SpawnBlocks(this); /// TODO: look into cache misses in nested for loops, row/col. - Move spawn logic into here. 
-        _boundry.lock()->SpawnBoundry(this); /// TODO: Move to Level Base Class
+		SpawnLevelBlocks(this); /// TODO: look into cache misses in nested for loops, row/col. - Move spawn logic into here
 
-		// BALL
-		_ball = SpawnActor<Ball_Regular>(15.f, sf::Color::Cyan);
-		float ballXStartingPos = GetWindowSize().x / 2 - _ball.lock()->GetActorGlobalRectBounds().width / 2;
-		float ballYStartingPos = GetWindowSize().y * 0.5;
-		_ball.lock()->SetActorLocation(sf::Vector2f(ballXStartingPos, ballYStartingPos));
+	}
+
+	void LevelOne::SpawnLevelBlocks(eb::World* currentWorld)
+	{
+		float blockWidth{ 100.f };
+		float blockHeight{ 25.f };
+
+		float blockSpacing{ 25.f };
+
+		float blockStartingXOffset{ 100.f };
+		float blockXOffset{ blockWidth + blockSpacing };
+
+		float blockStartingYOffset{ 50.f };
+		float blockYOffset{ blockHeight + blockSpacing };
+
+		int rows{ 10 };
+		int columns{ 15 };
+
+		sf::Color blockColor{};
+
+		for (int i = 0; i < rows - 1; i++)
+		{
+			for (int j = 0; j < columns - 1; j++)
+			{
+				switch (j % 5)
+				{
+				case 0: blockColor = sf::Color::Red; break;
+				case 1: blockColor = sf::Color::Green; break;
+				case 2: blockColor = sf::Color::Blue; break;
+				case 3: blockColor = sf::Color::Yellow; break;
+				case 4: blockColor = sf::Color::Magenta; break;
+				default: blockColor = sf::Color::White; break;
+				}
+
+				eb::weak_ptr<Block_Regular> block = currentWorld->SpawnActor<Block_Regular>(blockColor);
+				block.lock()->SetActorLocation(sf::Vector2f(j * blockXOffset + blockStartingXOffset, i * blockYOffset + blockStartingYOffset));
+			}
+		}
 	}
 
 	void LevelOne::BeginPlay()
@@ -119,106 +144,106 @@ This makes it easy to design and modify levels.
 * =============================================================================
 * class Level {
 private:
-    struct GridCell {
-        bool isOccupied = false;
-        BlockType type = BlockType::None;
-        sf::Color color = sf::Color::White;
-        int hitPoints = 0;
-    };
+	struct GridCell {
+		bool isOccupied = false;
+		BlockType type = BlockType::None;
+		sf::Color color = sf::Color::White;
+		int hitPoints = 0;
+	};
 
-    // Pre-allocated grid
-    static const int MAX_ROWS = 20;
-    static const int MAX_COLS = 30;
-    GridCell grid[MAX_ROWS][MAX_COLS];
+	// Pre-allocated grid
+	static const int MAX_ROWS = 20;
+	static const int MAX_COLS = 30;
+	GridCell grid[MAX_ROWS][MAX_COLS];
 
-    // Block dimensions and spacing
-    sf::Vector2f blockSize{50.f, 20.f};
-    sf::Vector2f spacing{5.f, 5.f};
-    sf::Vector2f startOffset{100.f, 50.f};
+	// Block dimensions and spacing
+	sf::Vector2f blockSize{50.f, 20.f};
+	sf::Vector2f spacing{5.f, 5.f};
+	sf::Vector2f startOffset{100.f, 50.f};
 
 public:
-    // Easy way to set up patterns using indices
-    void SetBlock(int row, int col, BlockType type, sf::Color color, int hp = 1) {
-        if (row < MAX_ROWS && col < MAX_COLS) {
-            grid[row][col].isOccupied = true;
-            grid[row][col].type = type;
-            grid[row][col].color = color;
-            grid[row][col].hitPoints = hp;
-        }
-    }
+	// Easy way to set up patterns using indices
+	void SetBlock(int row, int col, BlockType type, sf::Color color, int hp = 1) {
+		if (row < MAX_ROWS && col < MAX_COLS) {
+			grid[row][col].isOccupied = true;
+			grid[row][col].type = type;
+			grid[row][col].color = color;
+			grid[row][col].hitPoints = hp;
+		}
+	}
 
-    // Generate blocks based on occupied grid cells
-    void CreateBlocks() {
-        std::vector<Block::BlockBatchData> batchData;
-        
-        for(int row = 0; row < MAX_ROWS; row++) {
-            for(int col = 0; col < MAX_COLS; col++) {
-                if(grid[row][col].isOccupied) {
-                    sf::Vector2f position = {
-                        startOffset.x + (blockSize.x + spacing.x) * col,
-                        startOffset.y + (blockSize.y + spacing.y) * row
-                    };
+	// Generate blocks based on occupied grid cells
+	void CreateBlocks() {
+		std::vector<Block::BlockBatchData> batchData;
+		
+		for(int row = 0; row < MAX_ROWS; row++) {
+			for(int col = 0; col < MAX_COLS; col++) {
+				if(grid[row][col].isOccupied) {
+					sf::Vector2f position = {
+						startOffset.x + (blockSize.x + spacing.x) * col,
+						startOffset.y + (blockSize.y + spacing.y) * row
+					};
 
-                    batchData.push_back({
-                        position,
-                        blockSize,
-                        grid[row][col].color,
-                        grid[row][col].type,
-                        grid[row][col].hitPoints
-                    });
-                }
-            }
-        }
+					batchData.push_back({
+						position,
+						blockSize,
+						grid[row][col].color,
+						grid[row][col].type,
+						grid[row][col].hitPoints
+					});
+				}
+			}
+		}
 
-        // Create blocks in batch
-        blocks = Block::CreateBlocks(batchData);
-    }
+		// Create blocks in batch
+		blocks = Block::CreateBlocks(batchData);
+	}
 
-    // Easy level creation
-    void CreateClassicPattern() {
-        // Row 1: Red blocks
-        for(int col = 0; col < 10; col++) {
-            SetBlock(0, col, BlockType::Regular, sf::Color::Red);
-        }
-        
-        // Row 2: Blue blocks
-        for(int col = 0; col < 10; col++) {
-            SetBlock(1, col, BlockType::Regular, sf::Color::Blue);
-        }
+	// Easy level creation
+	void CreateClassicPattern() {
+		// Row 1: Red blocks
+		for(int col = 0; col < 10; col++) {
+			SetBlock(0, col, BlockType::Regular, sf::Color::Red);
+		}
+		
+		// Row 2: Blue blocks
+		for(int col = 0; col < 10; col++) {
+			SetBlock(1, col, BlockType::Regular, sf::Color::Blue);
+		}
 
-        // Create all blocks at once
-        CreateBlocks();
-    }
+		// Create all blocks at once
+		CreateBlocks();
+	}
 
-    // Or load from a pattern
-    void LoadPattern(const std::vector<std::string>& pattern) {
-        for(int row = 0; row < pattern.size(); row++) {
-            for(int col = 0; col < pattern[row].length(); col++) {
-                switch(pattern[row][col]) {
-                    case 'R': 
-                        SetBlock(row, col, BlockType::Regular, sf::Color::Red);
-                        break;
-                    case 'B': 
-                        SetBlock(row, col, BlockType::Regular, sf::Color::Blue);
-                        break;
-                    // etc...
-                }
-            }
-        }
-        
-        CreateBlocks();
-    }
+	// Or load from a pattern
+	void LoadPattern(const std::vector<std::string>& pattern) {
+		for(int row = 0; row < pattern.size(); row++) {
+			for(int col = 0; col < pattern[row].length(); col++) {
+				switch(pattern[row][col]) {
+					case 'R': 
+						SetBlock(row, col, BlockType::Regular, sf::Color::Red);
+						break;
+					case 'B': 
+						SetBlock(row, col, BlockType::Regular, sf::Color::Blue);
+						break;
+					// etc...
+				}
+			}
+		}
+		
+		CreateBlocks();
+	}
 };
 
 // Usage:
 void Game::LoadLevel1() {
-    const std::vector<std::string> LEVEL_1 = {
-        "RRRRRRRRRR",
-        "BBBBBBBBBB",
-        "GGGGGGGGGG",
-        "YYYYYYYYYY"
-    };
-    
-    level.LoadPattern(LEVEL_1);
+	const std::vector<std::string> LEVEL_1 = {
+		"RRRRRRRRRR",
+		"BBBBBBBBBB",
+		"GGGGGGGGGG",
+		"YYYYYYYYYY"
+	};
+	
+	level.LoadPattern(LEVEL_1);
 }
 */

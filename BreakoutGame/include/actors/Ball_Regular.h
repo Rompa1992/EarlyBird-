@@ -10,7 +10,7 @@ namespace bo
 	class Ball_Regular : public Ball_Base
 	{
 	public:
-		Ball_Regular(eb::World* owningWorld, float circleRadius, sf::Color color);
+		Ball_Regular(eb::World* owningWorld, sf::Color color = sf::Color::Cyan, float radiusSize = DefaultBallSize);
 
 		virtual void Tick(float deltaTime) override;
 		virtual void BeginPlay() override;

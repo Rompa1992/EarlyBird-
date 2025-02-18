@@ -9,7 +9,7 @@ namespace bo
 	class Player : public Block_Base
 	{
 	public:
-		Player(World* owningWorld, sf::Vector2f rectSize, sf::Color color);
+		Player(eb::World* owningWorld, sf::Color color = sf::Color::White, sf::Vector2f rectSize = DefaultRectSize);
 
 		virtual void Tick(float deltaTime) override;
 		virtual void BeginPlay() override;

@@ -14,7 +14,7 @@ namespace eb
 {
 	// public:
 	// =======
-	Actor::Actor(World* owningWorld, sf::Vector2f rectSize, sf::Color color)
+	Actor::Actor(eb::World* owningWorld, sf::Color color, sf::Vector2f rectSize)
 		: _owningWorld{ owningWorld },
 		_baseShapeActor{ std::make_shared<sf::RectangleShape>(rectSize) },
 		_isRectShape{ true },
@@ -26,7 +26,7 @@ namespace eb
 		_baseShapeActor->setFillColor(color);
 	}
 
-	Actor::Actor(World* owningWorld, float radiusSize, sf::Color color)
+	Actor::Actor(World* owningWorld, sf::Color color, float radiusSize)
 		: _owningWorld{ owningWorld },
 		_baseShapeActor{ std::make_shared<sf::CircleShape>(radiusSize) },
 		_isRectShape{ false },

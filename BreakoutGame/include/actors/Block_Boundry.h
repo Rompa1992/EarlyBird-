@@ -8,11 +8,10 @@ namespace bo
 	class Block_Boundry : public Block_Base
 	{
 	public:
-		Block_Boundry(eb::World* owningWorld, sf::Vector2f rectSize, sf::Color color = sf::Color::Transparent);
+		Block_Boundry(eb::World* owningWorld, sf::Color color, sf::Vector2f rectSize);
 
 		virtual void Tick(float deltaTime) override;
 		virtual void BeginPlay() override;
 
-		void SpawnBoundry(eb::World* currentWorld);
 	};
 }

@@ -14,10 +14,11 @@ namespace eb
 	{
 	public:
 		// Rectangle
-		Actor(World* owningWorld, sf::Vector2f rectSize = {50.f, 50.f}, sf::Color color = {sf::Color::Cyan});
+		Actor(eb::World* owningWorld, sf::Color color, sf::Vector2f rectSize);
 
-		// Circle
-		Actor(World* owningWorld, float radiusSize = 50.f, sf::Color color = { sf::Color::Cyan });
+		// Circle 
+		/// Refactor this the same as the blocks, decide whether or not the static cinsts should be constexpr and have getters etc. 
+		Actor(World* owningWorld, sf::Color color, float radiusSize);
 
 		void BeginPlayInternal();																												// Called From World::TickInternal();
 		void TickInternal(float deltaTime);																										// Called From World::TickInternal();
@@ -50,7 +51,7 @@ namespace eb
 
 		sf::Vector2f GetActorLocation() const;
 		float GetActorRotation() const;
-		shared_ptr<sf::Shape> GetBaseShape() const { return _baseShapeActor; }
+
 		// end getters
 
 		virtual ~Actor();

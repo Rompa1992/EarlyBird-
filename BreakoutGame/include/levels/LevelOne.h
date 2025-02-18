@@ -1,25 +1,21 @@
 #pragma once 
 
-#include "framework/World.h"
+#include "levels/Level_Base.h"
 
 
 namespace bo
 {
-	class Ball_Regular;
 	class Block_Regular;
-	class Block_Boundry;
-	class Player;
-	class LevelOne : public eb::World
+	class LevelOne : public Level_Base
 	{
 	public:
 		LevelOne(eb::Application* owningApplication);
+
+		virtual void SpawnLevelBlocks(eb::World* currentWorld) override;
 	
 	private:
 		virtual void BeginPlay() override;
-		 
-		eb::weak_ptr<Player> _player;
-		eb::weak_ptr<Ball_Regular> _ball;
+
 		eb::weak_ptr<Block_Regular> _blocks;
-		eb::weak_ptr<Block_Boundry> _boundry;
 	};
 }

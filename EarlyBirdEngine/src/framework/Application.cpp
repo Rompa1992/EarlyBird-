@@ -44,12 +44,15 @@ namespace eb
 
 			accumulatedTime += _tickClock.restart().asSeconds();												
 
-			while (accumulatedTime > targetDeltaTime)
+			while (accumulatedTime >= targetDeltaTime)
 			{
 				accumulatedTime -= targetDeltaTime;							// Runs multiple fixed updates if necessary to compensate for frame delays.
 				TickInternal(targetDeltaTime);
-				RenderInternal();
 			}
+
+
+			RenderInternal();
+			//sf::sleep(sf::milliseconds(1));
 		}
 	}
 	

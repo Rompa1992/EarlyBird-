@@ -5,8 +5,8 @@
 
 namespace bo
 {
-	Ball_Base::Ball_Base(eb::World* owningWorld, float circleRadius, sf::Color color)
-		: Actor{ owningWorld, circleRadius, color },
+	Ball_Base::Ball_Base(eb::World* owningWorld, sf::Color color, float radiusSize)
+		: Actor{ owningWorld, color, radiusSize },
 		_velocity{ 10.f, 10.f },
 		_hitActorIsBoundry{ false },
 		_targetFrameRate{ owningWorld->GetTargetFrameRate() }
