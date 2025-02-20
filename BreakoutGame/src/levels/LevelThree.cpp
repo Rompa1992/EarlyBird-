@@ -1,34 +1,33 @@
-#include "levels/LevelOne.h"
+#include "levels/LevelThree.h"
 
 #include "actors/Block_Regular.h"
 #include "actors/Player.h"
 
 namespace bo
 {
-	LevelOne::LevelOne(Application* owningApplication)
-		: Level_Base{owningApplication}
+	LevelThree::LevelThree(Application* owningApplication)
+		: Level_Base{ owningApplication }
 	{
 		SpawnBoundryBlocks(this);
-		SpawnLevelBlocks(this); 
+		SpawnLevelBlocks(this);
 		SpawnPlayer(this);
 		SpawnBall(this);
 	}
 
-
-	void LevelOne::SpawnBoundryBlocks(eb::World* currentWorld)
+	void LevelThree::SpawnBoundryBlocks(eb::World* currentWorld)
 	{
 		Level_Base::SpawnBoundryBlocks(currentWorld);
 	}
 
-	void LevelOne::SpawnLevelBlocks(eb::World* currentWorld)
+	void LevelThree::SpawnLevelBlocks(eb::World* currentWorld)
 	{
 		float blockSpacing{ 25.f };
 
 		float blockStartingXOffset{ 100.f };
 		float blockStartingYOffset{ 50.f };
 
-		int rows{ 2 }; // Default 10, should be static constexpr?
-		int columns{ 2 }; // Default 15, should be static constexpr?
+		int rows{ 10 }; // Default 10, should be static constexpr?
+		int columns{ 15 }; // Default 15, should be static constexpr?
 
 		int numberOfLevelBlocks{};
 
@@ -58,18 +57,18 @@ namespace bo
 		SetNumberOfLevelBlocks(numberOfLevelBlocks);
 	}
 
-	void LevelOne::SpawnPlayer(eb::World* currentWorld)
+	void LevelThree::SpawnPlayer(eb::World* currentWorld)
 	{
 		Level_Base::SpawnPlayer(currentWorld);
 	}
 
-	void LevelOne::SpawnBall(eb::World* currentWorld)
+	void LevelThree::SpawnBall(eb::World* currentWorld)
 	{
 		Level_Base::SpawnBall(currentWorld);
 	}
 
-	void LevelOne::BeginPlay()
+	void LevelThree::BeginPlay()
 	{
-		PRINT("Level One Begin Play!");
+		PRINT("Level Three Begin Play!");
 	}
 }

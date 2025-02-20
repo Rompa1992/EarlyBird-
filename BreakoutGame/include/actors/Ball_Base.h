@@ -7,6 +7,7 @@
 namespace bo
 {
 	class eb::World;
+	class Level_Base;
 	class Player;
 	class Ball_Base : public eb::Actor
 	{
@@ -23,6 +24,7 @@ namespace bo
 		virtual void OnActorBeginOverlap(Actor* hitActor) override;
 		virtual void OnActorEndOverlap(Actor* hitActor) override;
 
+		void SetVelocity(sf::Vector2f newVelocity) { _velocity = newVelocity; }
 
 	protected:
 		sf::Vector2f GetBallHitNormal(const sf::Vector2f ballVelocity, const sf::FloatRect& blockBounds, const sf::FloatRect& ballBounds);

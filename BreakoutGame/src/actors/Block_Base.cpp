@@ -1,5 +1,7 @@
 #include "actors/Block_Base.h"
 
+#include "levels/Level_Base.h"
+
 namespace bo
 {
 	const sf::Vector2f Block_Base::DefaultRectSize = { 100.f, 25.f };
@@ -7,7 +9,7 @@ namespace bo
 	Block_Base::Block_Base(eb::World* owningWorld, sf::Color color, sf::Vector2f rectSize)
 		: eb::Actor{ owningWorld, color, rectSize }
 	{
-		rectSize = { 400.f, 600.f };
+		_currentLevel = dynamic_cast<Level_Base*>(owningWorld);
 	}
 
 	void Block_Base::Tick(float deltaTime)

@@ -25,8 +25,6 @@ namespace eb
 		void Render(sf::RenderWindow& window);																									// Called From World::Render();
 		void AddActorLocationOffset(const sf::Vector2f& offsetAmount);
 
-		//TODO: Document physics process & its cpp - figure out the scale thing. make sure the physics boxes are alliged with the actors correctly. AssetManager start.
-
 		virtual void Destroy() override;
 
 		virtual void BeginPlay();
@@ -34,6 +32,7 @@ namespace eb
 		virtual void OnActorBeginOverlap(Actor* hitActor);
 		virtual void OnActorEndOverlap(Actor* hitActor);
 
+		// setters
 		void SetActorLocation(const sf::Vector2f& newLocation);
 		void SetActorRotation(const float newRotation);
 		void SetPhysicsEnabled(bool enable);

@@ -14,5 +14,8 @@ namespace bo
 		virtual void OnActorBeginOverlap(Actor* hitActor) override;
 		virtual void OnActorEndOverlap(Actor* hitActor) override;
 
+	private: /// TODO: move should destroy to base and handle destry better. 
+		bool _shouldDestroyNextFrame;
+
 	};
 }

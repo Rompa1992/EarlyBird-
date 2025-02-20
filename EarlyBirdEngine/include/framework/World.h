@@ -33,9 +33,11 @@ namespace eb
 		void TickInternal(float deltaTime);																		// Called from Application TickInternal();
 		void Render(sf::RenderWindow& window);																	// Called from Application Render();
 		void CleanCycle();																						// Called from Application TickInternal();
+		void DestroyAllActors();
 
 		sf::Vector2u GetWindowSize() const;
 		float GetTargetFrameRate() const;
+		bool GetIsWorldEmptyOfActors() const { return _isWorldEmptyOfActors; }
 
 		/*
 		 * This function creates a new actor, passing a reference to this world
@@ -60,13 +62,14 @@ namespace eb
 
 		List<shared_ptr<Actor>> _actors;
 		List<shared_ptr<Actor>> _pendingActors;
+		bool _isWorldEmptyOfActors;
 
 	};
 
 	template<typename ActorType, typename... Args>
 	weak_ptr<ActorType> World::SpawnActor(Args... args)
 	{
-		shared_ptr<ActorType> spawningActor{ new ActorType(this, args...) };
+		shared_ptr<ActorType> spawningActor{ new ActorType(args...) }; /// figure out how to spawn "currentWorld" or move spawning logic to each level. 
 		_pendingActors.push_back(spawningActor);
 		return spawningActor;
 	}

@@ -12,7 +12,8 @@ namespace eb
 		: _owningApplication{ owningApplication },
 		_hasBeganPlay{ false },
 		_actors{},
-		_pendingActors{}
+		_pendingActors{},
+		_isWorldEmptyOfActors{ false }
 	{
 	}
 
@@ -78,6 +79,19 @@ namespace eb
 				iter = _actors.erase(iter);																						// erase() returns valid iterator to next element
 			else
 				++iter;
+		}
+
+		if (_actors.empty())
+			_isWorldEmptyOfActors = true;
+		else
+			_isWorldEmptyOfActors = false;
+	}
+
+	void World::DestroyAllActors()
+	{
+		for (auto& actor : _actors)
+		{
+			actor->Destroy(); 
 		}
 	}
 

@@ -17,8 +17,16 @@ namespace bo
 	public:
 		GameApplication();
 
+		void AdvanceToNextLevel();
+
+		void SetCurrentLevel(int newLevel) { _currentLevel = newLevel; }
+
 	private:
-		eb::weak_ptr<eb::Actor> _testActor;
-		eb::World* _testWorld;
+		void LoadCurrentLevel();
+
+		int _currentLevel;
+
+		eb::weak_ptr<eb::World> _currentWorld;
+
 	};
 }

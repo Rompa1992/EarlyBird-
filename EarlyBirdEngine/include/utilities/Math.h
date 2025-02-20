@@ -53,8 +53,6 @@ namespace eb
         return vectorToNoramize;
     }
 
-    // Random
-
     /* RandomRange: Generates a random float value within a specified range [min, max].
        - Use case: When you need random values for gameplay mechanics (e.g., random spawn positions, damage values).
        - Example: float randomValue = RandomRange(1.f, 10.f); // Returns a random value between 1 and 10 */

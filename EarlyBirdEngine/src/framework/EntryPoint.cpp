@@ -6,8 +6,8 @@
 /// 
 /// Welcome to the Early Bird engine. Written by Nathan Rompa as a learning project. 
 /// 
-/// NOTE: In comments above sections of code that I tested for logic errors, 
-///		  I have used (++) to denote that I have tested this section and that it is currently working as intended.  
+/// NOTE: In comments above sections of code that I tested for semantic errors, 
+///		  I have used (++) to denote that I have tested this section and that it is currently working as intended, as far as I know.  
 /// 
 /// </summary>
 

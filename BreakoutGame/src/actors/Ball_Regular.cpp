@@ -8,7 +8,7 @@ namespace bo
 	Ball_Regular::Ball_Regular(World* owningWorld, sf::Color color, float radiusSize)
 		: Ball_Base{ owningWorld, color, radiusSize }
 	{
-		_velocity = { 20.f , 400.f }; /// TODO: random range X
+		SetVelocity(sf::Vector2f{ RandomRange(-80.f, 80.f) , -600.f }); /// TODO: random range X
 	}
 
 	void Ball_Regular::Tick(float deltaTime)

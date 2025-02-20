@@ -46,7 +46,7 @@ namespace eb
 
 			while (accumulatedTime >= targetDeltaTime)
 			{
-				accumulatedTime -= targetDeltaTime;							// Runs multiple fixed updates if necessary to compensate for frame delays.
+				accumulatedTime -= targetDeltaTime;																							// Runs multiple fixed updates if necessary to compensate for frame delays.
 				TickInternal(targetDeltaTime);
 			}
 

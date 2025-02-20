@@ -13,6 +13,7 @@
 1.8.GameApplication.cpp
 1.9.Object.h
 1.10 Core.h
+1.11 Levels
 
 ### Processes
 2.1.Calling An Actor 
@@ -324,6 +325,67 @@ To integrate the `Object` class documentation into the existing engine project d
 - **`List`**: Use for dynamic arrays.
 - **`Map`**: Use for sorted key-value pairs.
 - **`Set`**: Use for unordered unique elements.
+
+---
+---
+
+You're right - let me restructure it to match the style with proper numbering:
+
+### 1.11. **Level System**
+
+#### Purpose:
+Manages the game's level hierarchy, transitions, and gameplay progression through a base level class and specific implementations.
+
+#### Key Components:
+- **Inheritance & Relationships**:
+  - `Level_Base` inherits from `eb::World`
+  - Specific levels (LevelOne, LevelTwo, etc.) inherit from `Level_Base`
+  - Managed by `GameApplication`
+
+- **Level Base Structure**:
+  ```cpp
+  class Level_Base : public eb::World
+  {
+      GameApplication* _gameApplication;
+      weak_ptr<Player> _player;
+      weak_ptr<Ball_Regular> _ballRegular;
+      weak_ptr<Block_Boundry> _boundry;
+      int _numberOfLevelBlocksRemaining;
+      bool _shouldLoadNextLevel;
+  };
+  ```
+
+- **Level Lifecycle Management**:
+  - **Initialization**:
+    - Base level setup via constructor
+    - Spawning of boundaries, blocks, player, and ball
+    - Virtual BeginPlay for level-specific setup
+
+  - **Runtime**:
+    - Block counting and destruction tracking
+    - Level completion monitoring
+    - Actor cleanup and world transition
+
+  - **Transition**:
+    - World cleanup through DestroyAllActors
+    - Level advancement via GameApplication
+    - New level initialization and setup
+
+- **Virtual Functions**:
+  - `SpawnBoundryBlocks` - Creates level boundaries
+  - `SpawnLevelBlocks` - Defines block patterns
+  - `SpawnPlayer` - Places player in level
+  - `SpawnBall` - Initializes game ball
+  - `Tick` - Handles level-specific updates
+
+#### Level Progression Flow:
+1. Level initialization and actor spawning
+2. Gameplay and block destruction
+3. Level completion check
+4. World cleanup and transition
+5. Next level creation and setup
+
+Would you like me to elaborate on any particular aspect of this structure?
 
 ---
 ---

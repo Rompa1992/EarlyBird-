@@ -24,7 +24,7 @@ namespace bo
 
 	void Ball_Base::OnActorBeginOverlap(Actor* hitActor)
 	{
-		if (dynamic_cast<Block_Boundry*>(hitActor))
+		if (Block_Boundry* boundryBlock = dynamic_cast<Block_Boundry*>(hitActor))
 			_hitActorIsBoundry = true;
 	}
 
@@ -35,6 +35,9 @@ namespace bo
 
 	sf::Vector2f Ball_Base::GetBallHitNormal(const sf::Vector2f ballVelocity, const sf::FloatRect& blockBounds, const sf::FloatRect& ballBounds)
 	{
+		/// TODO: BUG - Case where if moving opposite to ball from player, if ball hits near edge of player then the ball sudenly moves in different direction. 
+		///		  Could be normal detection or the overlap cases for the ball regular which should be moved into here. 
+
 		/// BallHitNormal Diagram 
 		//
 		//					 { 0.f, -1.f }

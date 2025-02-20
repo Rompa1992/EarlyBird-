@@ -17,7 +17,5 @@ namespace bo
 		virtual void OnActorBeginOverlap(Actor* hitActor) override;
 		virtual void OnActorEndOverlap(Actor* hitActor) override;
 
-		
-
 	};
 }
